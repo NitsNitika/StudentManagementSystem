@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Marks Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Marks Management</h1>
+
+    <form method="POST">
+
+        <!-- Student Dropdown -->
+        <select name="student_name" required>
+            <option value="">Select Student</option>
+
+            {% for student in students %}
+            <option value="{{ student[0] }}">
+                {{ student[0] }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Subject Dropdown -->
+        <select
+            name="subject_name"
+            id="subjectSelect"
+            onchange="toggleSubjectField()"
+            required>
+
+            <option value="">Select Subject</option>
+
+            {% for subject in subjects %}
+            <option value="{{ subject[0] }}">
+                {{ subject[0] }}
+            </option>
+            {% endfor %}
+
+            <option value="Other">Other</option>
+
+        </select>
+
+        <!-- Custom Subject -->
+        <input
+            type="text"
+            id="customSubject"
+            name="custom_subject"
+            placeholder="Enter New Subject"
+            style="display:none;">
+
+        <!-- Marks -->
+        <input
+            type="number"
+            name="marks"
+            placeholder="Enter Marks"
+            required>
+
+        <button type="submit">
+            Add Marks
+        </button>
+
+    </form>
+
+    <hr>
+
+    <h2>Marks List</h2>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Student Name</th>
+            <th>Subject</th>
+            <th>Marks</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+
+        {% for mark in marks_data %}
+
+        <tr>
+
+            <td>{{ mark[0] }}</td>
+            <td>{{ mark[1] }}</td>
+            <td>{{ mark[2] }}</td>
+            <td>{{ mark[3] }}</td>
+
+            <td>
+                <a
+                    href="/edit_mark/{{ mark[0] }}"
+                    class="edit-btn">
+                    Edit
+                </a>
+            </td>
+
+            <td>
+                <a
+                    href="/delete_mark/{{ mark[0] }}"
+                    class="delete-btn"
+                    onclick="return confirm('Delete Record?')">
+                    Delete
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+<script>
+
+function toggleSubjectField() {
+
+    let subject =
+        document.getElementById("subjectSelect").value;
+
+    let textbox =
+        document.getElementById("customSubject");
+
+    if(subject === "Other") {
+
+        textbox.style.display = "block";
+        textbox.required = true;
+
+    } else {
+
+        textbox.style.display = "none";
+        textbox.required = false;
+        textbox.value = "";
+
+    }
+}
+
+</script>
+
+</body>
+</html>

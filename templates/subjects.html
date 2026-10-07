@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Subject Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>📚 Subject Management</h1>
+
+    <!-- Add Subject Form -->
+
+    <form method="POST">
+
+        <select name="student_name" required>
+            <option value="">Select Student</option>
+
+            {% for student in students %}
+            <option value="{{ student[1] }}">
+                {{ student[1] }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <input
+            type="text"
+            name="subject_name"
+            placeholder="Subject Name"
+            required>
+
+        <input
+            type="text"
+            name="subject_code"
+            placeholder="Subject Code"
+            required>
+
+        <button type="submit">
+            Add Subject
+        </button>
+
+    </form>
+
+    <hr>
+
+    <h2>Subject List</h2>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Student Name</th>
+            <th>Subject Name</th>
+            <th>Subject Code</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+
+        {% for subject in subjects %}
+
+        <tr>
+
+            <td>{{ subject[0] }}</td>
+            <td>{{ subject[1] }}</td>
+            <td>{{ subject[2] }}</td>
+            <td>{{ subject[3] }}</td>
+
+            <td>
+                <a
+                    href="/edit_subject/{{ subject[0] }}"
+                    class="edit-btn">
+                    Edit
+                </a>
+            </td>
+
+            <td>
+                <a
+                    href="/delete_subject/{{ subject[0] }}"
+                    class="delete-btn"
+                    onclick="return confirm('Delete Subject?')">
+                    Delete
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+</body>
+</html>

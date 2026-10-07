@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Attendance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Edit Attendance</h1>
+
+    <form method="POST">
+
+        <input
+            type="text"
+            name="student_name"
+            value="{{ attendance[1] }}"
+            required
+        >
+
+        <input
+            type="date"
+            name="date"
+            value="{{ attendance[2] }}"
+            required
+        >
+
+        <select name="status">
+
+            <option value="Present"
+            {% if attendance[3] == 'Present' %}selected{% endif %}>
+            Present
+            </option>
+
+            <option value="Absent"
+            {% if attendance[3] == 'Absent' %}selected{% endif %}>
+            Absent
+            </option>
+
+        </select>
+
+        <button type="submit">
+            Update Attendance
+        </button>
+
+    </form>
+
+</div>
+
+</body>
+</html>

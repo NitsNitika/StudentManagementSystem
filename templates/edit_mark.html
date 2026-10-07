@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Edit Marks</title>
+
+    <style>
+
+        body{
+            font-family: Arial;
+            background:#f4f6f9;
+            padding:20px;
+        }
+
+        .container{
+            background:white;
+            padding:20px;
+            border-radius:10px;
+            box-shadow:0px 0px 10px #ddd;
+            width:500px;
+            margin:auto;
+        }
+
+        h1{
+            color:#1e3a8a;
+        }
+
+        input{
+            width:100%;
+            padding:10px;
+            margin:10px 0;
+        }
+
+        button{
+            background:#2563eb;
+            color:white;
+            border:none;
+            padding:10px 20px;
+            border-radius:5px;
+            cursor:pointer;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+
+<h1>Edit Marks</h1>
+
+<form method="POST">
+
+    <input
+    type="text"
+    name="student_name"
+    value="{{ mark[1] }}"
+    required>
+
+    <input
+    type="text"
+    name="subject_name"
+    value="{{ mark[2] }}"
+    required>
+
+    <input
+    type="number"
+    name="marks"
+    value="{{ mark[3] }}"
+    required>
+
+    <br><br>
+
+    <button type="submit">
+        Update Marks
+    </button>
+
+</form>
+
+</div>
+
+</body>
+</html>

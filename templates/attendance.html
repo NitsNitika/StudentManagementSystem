@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance Management</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Attendance Management</h1>
+
+    <!-- Add Attendance Form -->
+
+    <form method="POST">
+
+        <!-- Student Dropdown -->
+        <select name="student_name" required>
+            <option value="">Select Student</option>
+
+            {% for student in students %}
+            <option value="{{ student[0] }}">
+                {{ student[0] }}
+            </option>
+            {% endfor %}
+        </select>
+
+        <!-- Date -->
+        <input
+            type="date"
+            name="date"
+            required>
+
+        <!-- Status -->
+        <select name="status" required>
+            <option value="">Select Status</option>
+            <option value="Present">Present</option>
+            <option value="Absent">Absent</option>
+        </select>
+
+        <button type="submit">
+            Mark Attendance
+        </button>
+
+    </form>
+
+    <hr>
+
+    <h2>Attendance List</h2>
+
+    <table>
+
+        <tr>
+            <th>ID</th>
+            <th>Student Name</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+
+        {% for attendance in attendance_data %}
+
+        <tr>
+
+            <td>{{ attendance[0] }}</td>
+            <td>{{ attendance[1] }}</td>
+            <td>{{ attendance[2] }}</td>
+            <td>{{ attendance[3] }}</td>
+
+            <td>
+                <a
+                    href="/edit_attendance/{{ attendance[0] }}"
+                    class="edit-btn">
+                    Edit
+                </a>
+            </td>
+
+            <td>
+                <a
+                    href="/delete_attendance/{{ attendance[0] }}"
+                    class="delete-btn"
+                    onclick="return confirm('Delete Attendance Record?')">
+                    Delete
+                </a>
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </table>
+
+</div>
+
+</body>
+</html>

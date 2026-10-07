@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Performance Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+<div class="container">
+
+    <!-- BACK BUTTON -->
+    <a href="/dashboard" class="back-btn">Back to Dashboard</a>
+
+    <h1 class="page-title">📊 Performance Analysis</h1>
+
+    <form method="POST" class="search-form">
+
+        <select name="student_id" required>
+            <option value="">Select Student</option>
+
+            {% for student in students %}
+            <option value="{{ student[0] }}">
+                {{ student[1] }}
+            </option>
+            {% endfor %}
+
+        </select>
+
+        <button type="submit">
+            View Performance
+        </button>
+
+    </form>
+
+    {% if performance %}
+
+    <!-- SUMMARY CARDS -->
+
+    <div class="summary-cards">
+
+        <div class="summary-card">
+            <h3>Average Marks</h3>
+            <h2>{{ performance.avg_marks }}%</h2>
+        </div>
+
+        <div class="summary-card">
+            <h3>Attendance</h3>
+            <h2>{{ performance.attendance_percentage }}%</h2>
+        </div>
+
+        <div class="summary-card">
+            <h3>Grade</h3>
+            <h2>{{ performance.grade }}</h2>
+        </div>
+
+        <div class="summary-card">
+            <h3>Result</h3>
+            <h2 class="pass">{{ performance.result }}</h2>
+        </div>
+
+    </div>
+
+    <!-- SUBJECT PERFORMANCE -->
+
+    <div class="performance-grid">
+
+        <div class="card">
+
+            <div class="student-header">
+                <h2>{{ performance.student_name }}</h2>
+                <p>Student Performance Report</p>
+            </div>
+
+            {% for subject in performance.subjects %}
+
+            <div class="subject-row">
+
+                <div class="subject-header-row">
+                    <span>{{ subject.name }}</span>
+                    <span>{{ subject.marks }}%</span>
+                </div>
+
+                <div class="progress">
+                    <div
+                        class="progress-fill"
+                        style="width: {{ subject.marks }}%">
+                    </div>
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        <div class="card center-card">
+
+            <h2>Marks Summary</h2>
+
+            <div class="circle">
+                <span>{{ performance.avg_marks }}%</span>
+            </div>
+
+            <h3>Grade : {{ performance.grade }}</h3>
+
+            <h3 class="pass">
+                Result : {{ performance.result }}
+            </h3>
+
+        </div>
+
+    </div>
+
+    <!-- ATTENDANCE -->
+
+    <div class="performance-grid">
+
+        <div class="card">
+
+            <h2>Attendance Analysis</h2>
+
+            <div class="attendance-stats">
+
+                <div class="stat-box">
+                    <h3>{{ performance.total_classes }}</h3>
+                    <p>Total Classes</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>{{ performance.attended }}</h3>
+                    <p>Attended</p>
+                </div>
+
+                <div class="stat-box">
+                    <h3>{{ performance.missed }}</h3>
+                    <p>Missed</p>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="card center-card">
+
+            <h2>Attendance Summary</h2>
+
+            <div class="circle">
+                <span>{{ performance.attendance_percentage }}%</span>
+            </div>
+
+            {% if performance.attendance_percentage >= 75 %}
+                <h3 class="pass">Status : Eligible</h3>
+            {% else %}
+                <h3 style="color:red;">Status : Not Eligible</h3>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
