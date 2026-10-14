@@ -181,96 +181,261 @@ def dashboard():
 # STUDENTS
 # =====================================================
 
+# =====================================================
+# STUDENT MANAGEMENT
+# =====================================================
+
+
+# =========================================================
+# STUDENT MANAGEMENT
+# =========================================================
+
 @app.route("/students", methods=["GET", "POST"])
 def students():
     conn = get_db()
 
+    # -----------------------------------------------------
+    # ADD STUDENT
+    # -----------------------------------------------------
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
         course = request.form.get("course", "").strip()
         semester = request.form.get("semester", "").strip()
-        course_type = valid_course_type(request.form.get("course_type"))
+        course_type = valid_course_type(
+            request.form.get("course_type")
+        )
 
-        if not name or not course_type:
+        if not name:
             conn.close()
-            flash("Enter the student name and select UG or PG.", "error")
+            flash("Please enter the student name.", "error")
+            return redirect(url_for("students"))
+
+        if course_type not in ("UG", "PG"):
+            conn.close()
+            flash("Please select UG or PG.", "error")
             return redirect(url_for("students"))
 
         conn.execute("""
             INSERT INTO students
                 (name, email, course, semester, course_type)
             VALUES (?, ?, ?, ?, ?)
-        """, (name, email, course, semester, course_type))
+        """, (
+            name,
+            email,
+            course,
+            semester,
+            course_type
+        ))
 
         conn.commit()
         conn.close()
 
-        flash("Student added successfully.", "success")
+        flash("Student added successfully!", "success")
         return redirect(url_for("students"))
 
+    # -----------------------------------------------------
+    # FILTER: ALL / UG / PG
+    # Derive display classification from existing subjects.
+    # -----------------------------------------------------
+    course_filter = request.args.get(
+        "course_type", ""
+    ).strip().upper()
+
+    if course_filter not in ("UG", "PG"):
+        course_filter = ""
+
     students_data = conn.execute("""
-        SELECT * FROM students ORDER BY id DESC
+        SELECT
+            s.*,
+            CASE
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM subjects sub
+                    WHERE LOWER(TRIM(sub.student_name)) =
+                          LOWER(TRIM(s.name))
+                      AND UPPER(TRIM(sub.course_type)) = 'UG'
+                )
+                AND EXISTS (
+                    SELECT 1
+                    FROM subjects sub
+                    WHERE LOWER(TRIM(sub.student_name)) =
+                          LOWER(TRIM(s.name))
+                      AND UPPER(TRIM(sub.course_type)) = 'PG'
+                )
+                    THEN 'UG, PG'
+
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM subjects sub
+                    WHERE LOWER(TRIM(sub.student_name)) =
+                          LOWER(TRIM(s.name))
+                      AND UPPER(TRIM(sub.course_type)) = 'PG'
+                )
+                    THEN 'PG'
+
+                WHEN EXISTS (
+                    SELECT 1
+                    FROM subjects sub
+                    WHERE LOWER(TRIM(sub.student_name)) =
+                          LOWER(TRIM(s.name))
+                      AND UPPER(TRIM(sub.course_type)) = 'UG'
+                )
+                    THEN 'UG'
+
+                ELSE COALESCE(NULLIF(UPPER(TRIM(s.course_type)), ''), 'Not set')
+            END AS display_course_type
+        FROM students s
+        ORDER BY s.id DESC
     """).fetchall()
 
     conn.close()
-    return render_template("students.html", students=students_data)
+
+    # Filter the list using the displayed classification.
+    if course_filter:
+        students_data = [
+            student for student in students_data
+            if course_filter in (
+                student["display_course_type"] or ""
+            ).split(", ")
+        ]
+
+    return render_template(
+        "students.html",
+        students=students_data,
+        course_filter=course_filter
+    )
+
+
+# =========================================================
+# DELETE STUDENT
+# =========================================================
 
 
 @app.route("/delete/<int:id>", methods=["GET", "POST"])
 def delete_student(id):
     conn = get_db()
-    conn.execute("DELETE FROM students WHERE id = ?", (id,))
-    conn.commit()
-    conn.close()
 
-    flash("Student deleted successfully.", "success")
+    try:
+        student = conn.execute(
+            "SELECT id, name FROM students WHERE id = ?",
+            (id,)
+        ).fetchone()
+
+        if student is None:
+            flash("Student not found.", "error")
+            return redirect(url_for("students"))
+
+        student_name = student["name"]
+
+        # Delete related subject records
+        conn.execute("""
+            DELETE FROM subjects
+            WHERE LOWER(TRIM(COALESCE(student_name, ''))) =
+                  LOWER(TRIM(?))
+        """, (student_name,))
+
+        # Delete related marks records
+        conn.execute("""
+            DELETE FROM marks
+            WHERE LOWER(TRIM(COALESCE(student_name, ''))) =
+                  LOWER(TRIM(?))
+        """, (student_name,))
+
+        # Delete related attendance records
+        conn.execute("""
+            DELETE FROM attendance
+            WHERE LOWER(TRIM(COALESCE(student_name, ''))) =
+                  LOWER(TRIM(?))
+        """, (student_name,))
+
+        # Delete the student record
+        conn.execute(
+            "DELETE FROM students WHERE id = ?",
+            (id,)
+        )
+
+        conn.commit()
+        flash(
+            "Student and related records deleted successfully!",
+            "success"
+        )
+
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Failed to delete student and related records")
+        flash("Could not delete the student. Please try again.", "error")
+
+    finally:
+        conn.close()
+
     return redirect(url_for("students"))
 
+# =========================================================
+# EDIT STUDENT
+# =========================================================
 
 @app.route("/edit/<int:id>", methods=["GET", "POST"])
 def edit_student(id):
     conn = get_db()
+
+    student = conn.execute(
+        "SELECT * FROM students WHERE id = ?",
+        (id,)
+    ).fetchone()
+
+    if student is None:
+        conn.close()
+        return "Student not found", 404
 
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip()
         course = request.form.get("course", "").strip()
         semester = request.form.get("semester", "").strip()
-        course_type = valid_course_type(request.form.get("course_type"))
+        course_type = valid_course_type(
+            request.form.get("course_type")
+        )
 
-        if not name or not course_type:
+        if not name:
             conn.close()
-            flash("Enter the student name and select UG or PG.", "error")
+            flash("Please enter the student name.", "error")
+            return redirect(url_for("edit_student", id=id))
+
+        if course_type not in ("UG", "PG"):
+            conn.close()
+            flash("Please select UG or PG.", "error")
             return redirect(url_for("edit_student", id=id))
 
         conn.execute("""
             UPDATE students
-            SET name=?, email=?, course=?, semester=?, course_type=?
-            WHERE id=?
-        """, (name, email, course, semester, course_type, id))
+            SET name = ?,
+                email = ?,
+                course = ?,
+                semester = ?,
+                course_type = ?
+            WHERE id = ?
+        """, (
+            name,
+            email,
+            course,
+            semester,
+            course_type,
+            id
+        ))
 
         conn.commit()
         conn.close()
 
-        flash("Student updated successfully.", "success")
+        flash("Student updated successfully!", "success")
         return redirect(url_for("students"))
-
-    student = conn.execute(
-        "SELECT * FROM students WHERE id=?", (id,)
-    ).fetchone()
 
     conn.close()
 
-    if student is None:
-        return "Student not found", 404
-
-    return render_template("edit_student.html", student=student)
-
-
-# =====================================================
-# SUBJECTS
-# =====================================================
+    return render_template(
+        "edit_student.html",
+        student=student
+    )
 
 @app.route("/subjects", methods=["GET", "POST"])
 def subjects():

@@ -6,195 +6,347 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Edit Student | Smart Student Management</title>
 
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-
     <style>
         * {
             box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
         body {
-            margin: 0;
-            padding: 30px 20px;
-            background: #f4f6fb;
-            font-family: Arial, sans-serif;
-            color: #1f2937;
+            font-family: "Segoe UI", Arial, sans-serif;
+            background: #f2f5fb;
+            color: #263b59;
+            padding: 28px;
         }
 
         .container {
-            max-width: 1500px;
-            margin: 10px auto;
-            padding: 32px;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 40px 48px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 8px 28px rgba(30, 50, 85, 0.08);
         }
 
-        .back-btn {
-            display: inline-block;
-            margin-bottom: 22px;
-            padding: 12px 18px;
-            border-radius: 8px;
-            background: #2563eb;
-            color: white;
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 23px;
+            margin-bottom: 30px;
+            border-radius: 9px;
+            background: #2864f0;
+            color: #fff;
             text-decoration: none;
-            font-size: 14px;
-            font-weight: bold;
-            transition: background 0.2s;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background 0.2s, transform 0.2s;
         }
 
-        .back-btn:hover {
-            background: #1d4ed8;
+        .back-button:hover {
+            background: #174fd0;
+            transform: translateY(-1px);
         }
 
         h1 {
-            margin: 0 0 28px;
-            color: #1e3a8a;
-            font-size: 36px;
+            color: #29499a;
+            font-size: 40px;
+            font-weight: 700;
+            margin-bottom: 30px;
+            letter-spacing: -0.5px;
         }
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(5, minmax(0, 1fr));
+            grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(190px, 1.1fr);
             gap: 14px;
             align-items: center;
         }
 
-        input {
+        input,
+        select {
+            display: block;
             width: 100%;
             min-width: 0;
-            padding: 14px;
-            border: 1px solid #d1d5db;
-            border-radius: 9px;
-            background: white;
+            height: 58px;
+            padding: 0 16px;
+            border: 1px solid #dbe3ef;
+            border-radius: 11px;
+            background: #fff;
+            color: #263b59;
+            font-family: inherit;
             font-size: 15px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input::placeholder {
+            color: #8793a5;
+        }
+
+        input:focus,
+        select:focus {
             outline: none;
+            border-color: #2864f0;
+            box-shadow: 0 0 0 3px rgba(40, 100, 240, 0.10);
         }
 
-        input:focus {
-            border-color: #2563eb;
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-        }
-
-        button {
-            width: 100%;
-            min-width: 0;
-            padding: 15px 12px;
+        .submit-button {
+            grid-column: 1 / -1;
+            justify-self: end;
+            width: 220px;
+            min-height: 56px;
+            padding: 14px 20px;
             border: none;
-            border-radius: 9px;
-            background: #2563eb;
-            color: white;
-            font-size: 15px;
-            font-weight: bold;
+            border-radius: 10px;
+            background: #2864f0;
+            color: #fff;
+            font-family: inherit;
+            font-size: 16px;
+            font-weight: 600;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: background 0.2s, box-shadow 0.2s;
         }
 
-        button:hover {
-            background: #1d4ed8;
+        .submit-button:hover {
+            background: #174fd0;
+            box-shadow: 0 4px 12px rgba(40, 100, 240, 0.20);
+        }
+
+        .submit-button:active {
+            transform: translateY(1px);
         }
 
         hr {
             border: 0;
-            border-top: 1px solid #e5e7eb;
-            margin: 30px 0;
+            border-top: 1px solid #e5eaf2;
+            margin: 32px 0;
         }
 
-        .section-title {
-            margin: 0 0 22px;
-            font-size: 26px;
-            color: #1f2937;
+        h2 {
+            margin-bottom: 18px;
+            color: #263b59;
+            font-size: 28px;
+            font-weight: 700;
         }
 
-        .form-note {
-            margin-top: 22px;
-            color: #64748b;
+        .info-text {
+            color: #71839f;
+            font-size: 15px;
+            line-height: 1.8;
+        }
+
+        .info-text strong {
+            color: #526782;
+        }
+
+        .toast-container {
+            margin-bottom: 22px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 18px;
+            margin-bottom: 10px;
+            border-radius: 9px;
             font-size: 14px;
+            box-shadow: 0 3px 12px rgba(30, 50, 85, 0.05);
         }
 
-        @media (max-width: 1050px) {
+        .toast.success {
+            color: #176b3a;
+            background: #effcf4;
+            border-left: 4px solid #16a34a;
+        }
+
+        .toast.error {
+            color: #b4232d;
+            background: #fff1f2;
+            border-left: 4px solid #ef4444;
+        }
+
+        .toast-close {
+            margin-left: auto;
+            border: none;
+            background: transparent;
+            color: inherit;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        @media (min-width: 1500px) {
             .form-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr));
+                grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.1fr) 210px;
+            }
+
+            .submit-button {
+                grid-column: auto;
+                width: 100%;
             }
         }
 
-        @media (max-width: 600px) {
+        @media (max-width: 1000px) {
+            body {
+                padding: 18px;
+            }
+
+            .container {
+                padding: 30px;
+            }
+
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .submit-button {
+                grid-column: 1 / -1;
+                justify-self: stretch;
+                width: 100%;
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+        }
+
+        @media (max-width: 560px) {
             body {
                 padding: 10px;
             }
 
             .container {
-                padding: 20px;
+                padding: 22px 16px;
+                border-radius: 15px;
+            }
+
+            .back-button {
+                margin-bottom: 24px;
             }
 
             h1 {
-                font-size: 28px;
+                font-size: 29px;
+                margin-bottom: 24px;
             }
 
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 13px;
+            }
+
+            .submit-button {
+                grid-column: 1;
+            }
+
+            hr {
+                margin: 27px 0;
+            }
+
+            h2 {
+                font-size: 24px;
             }
         }
     </style>
 </head>
 
 <body>
-<div class="container">
+    <div class="container">
 
-    <a href="/students" class="back-btn">
-         Back to Students
-    </a>
+        <a href="{{ url_for('students') }}" class="back-button">
+             Back to Students
+        </a>
 
-    <h1>✏️ Edit Student</h1>
+        <h1>✏️ Edit Student</h1>
 
-    <form method="POST">
-        <div class="form-grid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="toast-container">
+                    {% for category, message in messages %}
+                        <div class="toast {{ category }}">
+                            <span>
+                                {% if category == 'success' %}✓{% else %}⚠{% endif %}
+                            </span>
+
+                            <span>{{ message }}</span>
+
+                            <button
+                                type="button"
+                                class="toast-close"
+                                aria-label="Close message"
+                                onclick="this.parentElement.remove()">
+                                &times;
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <form
+            method="POST"
+            action="{{ url_for('edit_student', id=student['id']) }}"
+            class="form-grid">
 
             <input
                 type="text"
                 name="name"
                 placeholder="Student Name"
-                value="{{ student[1] }}"
-                required>
+                value="{{ student['name'] or '' }}"
+                required
+            >
 
             <input
                 type="email"
                 name="email"
                 placeholder="Email"
-                value="{{ student[2] }}"
-                required>
+                value="{{ student['email'] or '' }}"
+            >
 
             <input
                 type="text"
                 name="course"
-                placeholder="Course"
-                value="{{ student[3] }}"
-                required>
+                placeholder="Course (e.g. BCA, MCA)"
+                value="{{ student['course'] or '' }}"
+            >
 
             <input
                 type="text"
                 name="semester"
                 placeholder="Semester"
-                value="{{ student[4] }}"
-                required>
+                value="{{ student['semester'] or '' }}"
+            >
 
-            <button type="submit">
+            <select name="course_type" required>
+                <option value="">Select UG/PG</option>
+
+                <option value="UG"
+                    {% if student['course_type'] == 'UG' %}selected{% endif %}>
+                    UG
+                </option>
+
+                <option value="PG"
+                    {% if student['course_type'] == 'PG' %}selected{% endif %}>
+                    PG
+                </option>
+            </select>
+
+            <button type="submit" class="submit-button">
                 ✓ Update Student
             </button>
 
-        </div>
-    </form>
+        </form>
 
-    <hr>
+        <hr>
 
-    <h2 class="section-title">Student Information</h2>
+        <h2>Student Information</h2>
 
-    <p class="form-note">
-        Update the student details above and click
-        <strong>Update Student</strong> to save your changes.
-    </p>
+        <p class="info-text">
+            Update the student details above and click
+            <strong>Update Student</strong> to save your changes.
+        </p>
 
-</div>
+    </div>
 </body>
 </html>
