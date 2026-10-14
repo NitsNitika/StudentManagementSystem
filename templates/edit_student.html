@@ -1,62 +1,200 @@
-<!DOCTYPE html>
-<html>
 
+<!DOCTYPE html>
+<html lang="en">
 <head>
-    <title>Edit Student</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Student | Smart Student Management</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 30px 20px;
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: 10px auto;
+            padding: 32px;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 22px;
+            padding: 12px 18px;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #1d4ed8;
+        }
+
+        h1 {
+            margin: 0 0 28px;
+            color: #1e3a8a;
+            font-size: 36px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 14px;
+            align-items: center;
+        }
+
+        input {
+            width: 100%;
+            min-width: 0;
+            padding: 14px;
+            border: 1px solid #d1d5db;
+            border-radius: 9px;
+            background: white;
+            font-size: 15px;
+            outline: none;
+        }
+
+        input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            width: 100%;
+            min-width: 0;
+            padding: 15px 12px;
+            border: none;
+            border-radius: 9px;
+            background: #2563eb;
+            color: white;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            margin: 30px 0;
+        }
+
+        .section-title {
+            margin: 0 0 22px;
+            font-size: 26px;
+            color: #1f2937;
+        }
+
+        .form-note {
+            margin-top: 22px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        @media (max-width: 1050px) {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 
 <body>
-
 <div class="container">
 
-<h1>Edit Student</h1>
+    <a href="/students" class="back-btn">
+         Back to Students
+    </a>
 
-<form method="POST">
+    <h1>✏️ Edit Student</h1>
 
-    <input type="text"
-           name="name"
-           value="{{ student[1] }}"
-           required>
+    <form method="POST">
+        <div class="form-grid">
 
-    <br><br>
+            <input
+                type="text"
+                name="name"
+                placeholder="Student Name"
+                value="{{ student[1] }}"
+                required>
 
-    <input type="email"
-           name="email"
-           value="{{ student[2] }}"
-           required>
+            <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value="{{ student[2] }}"
+                required>
 
-    <br><br>
+            <input
+                type="text"
+                name="course"
+                placeholder="Course"
+                value="{{ student[3] }}"
+                required>
 
-    <input type="text"
-           name="course"
-           value="{{ student[3] }}"
-           required>
+            <input
+                type="text"
+                name="semester"
+                placeholder="Semester"
+                value="{{ student[4] }}"
+                required>
 
-    <br><br>
+            <button type="submit">
+                ✓ Update Student
+            </button>
 
-    <input type="text"
-           name="semester"
-           value="{{ student[4] }}"
-           required>
+        </div>
+    </form>
 
-    <br><br>
+    <hr>
 
-    <button type="submit">
-        Update Student
-    </button>
+    <h2 class="section-title">Student Information</h2>
 
-</form>
-
-<br>
-
-<a href="/students">
-    Back to Students
-</a>
+    <p class="form-note">
+        Update the student details above and click
+        <strong>Update Student</strong> to save your changes.
+    </p>
 
 </div>
-
 </body>
 </html>

@@ -1,97 +1,852 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Attendance Management</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Attendance Management | Smart Student Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f2f5fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #183153;
+        }
+
+        .attendance-container {
+            width: 100%;
+            max-width: 1700px;
+            margin: 0 auto;
+            padding: 32px;
+            background: #ffffff;
+            border-radius: 19px;
+            box-shadow: 0 10px 35px rgba(36, 58, 100, 0.07);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 12px 19px;
+            margin-bottom: 30px;
+            background: #2962f6;
+            color: #ffffff;
+            border-radius: 9px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: background 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #174bd1;
+        }
+
+        .page-title {
+            margin: 0 0 28px;
+            color: #29488f;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Form */
+        .attendance-form {
+            display: grid;
+            grid-template-columns: 1.1fr 1fr 1fr 1fr;
+            gap: 14px;
+            align-items: center;
+        }
+
+        .attendance-form select,
+        .attendance-form input {
+            width: 100%;
+            min-width: 0;
+            height: 54px;
+            padding: 0 16px;
+            border: 1px solid #dce4f0;
+            border-radius: 11px;
+            background: #ffffff;
+            color: #243b5a;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .attendance-form select:focus,
+        .attendance-form input:focus,
+        .filter-select:focus {
+            border-color: #2962f6;
+            box-shadow: 0 0 0 3px rgba(41, 98, 246, 0.09);
+        }
+
+        .primary-btn {
+            width: 100%;
+            height: 54px;
+            padding: 0 15px;
+            border: none;
+            border-radius: 10px;
+            background: #2962f6;
+            color: #ffffff;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .primary-btn:hover {
+            background: #174bd1;
+        }
+
+        .section-divider {
+            margin: 28px 0 32px;
+            border: none;
+            border-top: 1px solid #e8edf5;
+        }
+
+        /* List header */
+        .list-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .list-title {
+            margin: 0;
+            color: #263b56;
+            font-size: 25px;
+            font-weight: 700;
+        }
+
+        .filter-select {
+            width: 255px;
+            max-width: 100%;
+            height: 49px;
+            padding: 0 15px;
+            border: 1px solid #dce4f0;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #243b5a;
+            font-family: inherit;
+            font-size: 14px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        /* Table */
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #e2e8f2;
+            border-radius: 5px;
+        }
+
+        .attendance-table {
+            width: 100%;
+            min-width: 760px;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        .attendance-table thead {
+            background: #3563e9;
+            color: #ffffff;
+        }
+
+        .attendance-table th {
+            height: 55px;
+            padding: 14px 12px;
+            font-size: 14px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .attendance-table td {
+            height: 58px;
+            padding: 10px 12px;
+            border: 1px solid #e9edf4;
+            color: #183153;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .attendance-table tbody tr {
+            background: #ffffff;
+            transition: background 0.15s ease;
+        }
+
+        .attendance-table tbody tr:nth-child(even) {
+            background: #f6f8fb;
+        }
+
+        .attendance-table tbody tr:hover {
+            background: #edf3ff;
+        }
+
+        /* Status badges */
+        .status {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 78px;
+            padding: 8px 13px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .status-present {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status-absent {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* Action buttons */
+        .attendance-table td form {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+        }
+
+        .edit-btn,
+        .delete-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 68px;
+            height: 35px;
+            padding: 0 10px;
+            border: none;
+            border-radius: 7px;
+            color: #ffffff;
+            text-decoration: none;
+            font-family: inherit;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .edit-btn {
+            background: #16a34a;
+        }
+
+        .edit-btn:hover {
+            background: #15803d;
+        }
+
+        .delete-btn {
+            background: #ef2525;
+        }
+
+        .delete-btn:hover {
+            background: #c91818;
+        }
+
+        .empty-row {
+            height: 80px;
+            color: #7b8798 !important;
+            text-align: center;
+        }
+
+        /* Toast notifications */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: min(390px, calc(100vw - 40px));
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-height: 58px;
+            padding: 13px 15px;
+            background: #ffffff;
+            border-left: 4px solid #16a34a;
+            border-radius: 11px;
+            box-shadow: 0 10px 30px rgba(23, 42, 77, 0.16);
+            color: #263445;
+            font-size: 14px;
+            animation: toastIn 0.3s ease forwards;
+        }
+
+        .toast.error {
+            border-left-color: #dc2626;
+        }
+
+        .toast.warning {
+            border-left-color: #d97706;
+        }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 17px;
+            font-weight: 700;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .toast.warning .toast-icon {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .toast-message {
+            flex: 1;
+            line-height: 1.45;
+        }
+
+        .toast-close {
+            border: none;
+            background: transparent;
+            color: #758198;
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 2px;
+        }
+
+        .toast-close:hover {
+            color: #1f2937;
+        }
+
+        .toast.removing {
+            animation: toastOut 0.25s ease forwards;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        /* Delete confirmation modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.45);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .confirm-modal {
+            width: 100%;
+            max-width: 410px;
+            padding: 28px;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            text-align: center;
+            animation: modalIn 0.2s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            margin: 0 auto 17px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 26px;
+            font-weight: 700;
+        }
+
+        .confirm-modal h3 {
+            margin: 0 0 10px;
+            color: #1e293b;
+            font-size: 21px;
+        }
+
+        .confirm-modal p {
+            margin: 0 0 24px;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            min-width: 115px;
+            height: 42px;
+            padding: 0 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            background: #eef2f7;
+            color: #334155;
+        }
+
+        .cancel-btn:hover {
+            background: #e2e8f0;
+        }
+
+        .confirm-delete-btn {
+            background: #ef2525;
+            color: #ffffff;
+        }
+
+        .confirm-delete-btn:hover {
+            background: #c91818;
+        }
+
+        /* Responsive */
+        @media (max-width: 1000px) {
+            .attendance-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .attendance-container {
+                padding: 24px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .attendance-container {
+                padding: 18px;
+                border-radius: 13px;
+            }
+
+            .page-title {
+                font-size: 24px;
+                line-height: 1.4;
+            }
+
+            .attendance-form {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .list-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .list-title {
+                font-size: 22px;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .section-divider {
+                margin: 24px 0;
+            }
+
+            .toast-container {
+                top: 12px;
+                right: 12px;
+                width: calc(100vw - 24px);
+            }
+
+            .confirm-modal {
+                padding: 23px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
+<!-- Toast notifications -->
+<div class="toast-container" id="toastContainer" aria-live="polite">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="toast
+                    {% if category == 'error' %}error
+                    {% elif category == 'warning' %}warning{% endif %}">
 
-    <h1>Attendance Management</h1>
+                    <span class="toast-icon">
+                        {% if category == 'error' %}!
+                        {% elif category == 'warning' %}!
+                        {% else %}✓{% endif %}
+                    </span>
+
+                    <span class="toast-message">{{ message }}</span>
+
+                    <button type="button"
+                            class="toast-close"
+                            aria-label="Close notification">×</button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+</div>
+
+<div class="attendance-container">
+
+    <a href="{{ url_for('dashboard') }}" class="back-btn">
+        Back to Dashboard
+    </a>
+
+    <h1 class="page-title">🗓️ Attendance Management</h1>
 
     <!-- Add Attendance Form -->
+    <form
+        method="POST"
+        action="{{ url_for('attendance') }}"
+        class="attendance-form"
+        id="attendanceForm">
 
-    <form method="POST">
-
-        <!-- Student Dropdown -->
         <select name="student_name" required>
             <option value="">Select Student</option>
-
             {% for student in students %}
-            <option value="{{ student[0] }}">
-                {{ student[0] }}
-            </option>
+                <option value="{{ student['name'] }}">
+                    {{ student['name'] }}
+                </option>
             {% endfor %}
         </select>
 
-        <!-- Date -->
         <input
             type="date"
             name="date"
-            required>
+            id="attendanceDate"
+            value="{{ today }}"
+            max="{{ today }}"
+            required
+        >
 
-        <!-- Status -->
         <select name="status" required>
             <option value="">Select Status</option>
             <option value="Present">Present</option>
             <option value="Absent">Absent</option>
         </select>
 
-        <button type="submit">
-            Mark Attendance
+        <button type="submit" class="primary-btn">
+            Add Attendance
         </button>
-
     </form>
 
-    <hr>
+    <hr class="section-divider">
 
-    <h2>Attendance List</h2>
+    <!-- Attendance List -->
+    <div class="list-header">
+        <h2 class="list-title">Attendance List</h2>
 
-    <table>
+        <select id="attendanceFilter" class="filter-select">
+            <option value="all">Show All Attendance</option>
+            <option value="Present">Present Only</option>
+            <option value="Absent">Absent Only</option>
+        </select>
+    </div>
 
-        <tr>
-            <th>ID</th>
-            <th>Student Name</th>
-            <th>Date</th>
-            <th>Status</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
+    <div class="table-wrapper">
+        <table class="attendance-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Student Name</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
 
-        {% for attendance in attendance_data %}
+            <tbody id="attendanceTableBody">
+                {% for record in attendance_data %}
+                <tr data-status="{{ record['status'] }}">
+                    <td>{{ record['id'] }}</td>
+                    <td>{{ record['student_name'] }}</td>
+                    <td>{{ record['date'] }}</td>
 
-        <tr>
+                    <td>
+                        {% if record['status'] == 'Present' %}
+                            <span class="status status-present">Present</span>
+                        {% else %}
+                            <span class="status status-absent">Absent</span>
+                        {% endif %}
+                    </td>
 
-            <td>{{ attendance[0] }}</td>
-            <td>{{ attendance[1] }}</td>
-            <td>{{ attendance[2] }}</td>
-            <td>{{ attendance[3] }}</td>
+                    <td>
+                        <a
+                            href="{{ url_for('edit_attendance', id=record['id']) }}"
+                            class="edit-btn">
+                            Edit
+                        </a>
+                    </td>
 
-            <td>
-                <a
-                    href="/edit_attendance/{{ attendance[0] }}"
-                    class="edit-btn">
-                    Edit
-                </a>
-            </td>
+                    <td>
+                        <form
+                            method="POST"
+                            action="{{ url_for('delete_attendance', id=record['id']) }}"
+                            class="delete-form">
 
-            <td>
-                <a
-                    href="/delete_attendance/{{ attendance[0] }}"
-                    class="delete-btn"
-                    onclick="return confirm('Delete Attendance Record?')">
-                    Delete
-                </a>
-            </td>
+                            <button type="button" class="delete-btn open-delete-modal">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
 
-        </tr>
-
-        {% endfor %}
-
-    </table>
-
+                {% else %}
+                <tr>
+                    <td colspan="6" class="empty-row">
+                        No attendance records found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
+
+<!-- Delete confirmation popup -->
+<div class="modal-overlay" id="deleteModal" role="dialog"
+     aria-modal="true" aria-labelledby="deleteModalTitle">
+
+    <div class="confirm-modal">
+        <div class="modal-icon">!</div>
+
+        <h3 id="deleteModalTitle">Delete Attendance?</h3>
+
+        <p>
+            Are you sure you want to delete this attendance record?
+            This action cannot be undone.
+        </p>
+
+        <div class="modal-actions">
+            <button type="button" class="modal-btn cancel-btn"
+                    id="cancelDelete">
+                Cancel
+            </button>
+
+            <button type="button" class="modal-btn confirm-delete-btn"
+                    id="confirmDelete">
+                Yes, Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Local date in YYYY-MM-DD format.
+    function getLocalToday() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+
+        return `${year}-${month}-${day}`;
+    }
+
+    // Prevent future dates in the date picker.
+    const dateInput = document.getElementById("attendanceDate");
+
+    if (dateInput) {
+        const today = getLocalToday();
+        dateInput.max = today;
+
+        if (!dateInput.value) {
+            dateInput.value = today;
+        }
+
+        dateInput.addEventListener("change", function () {
+            if (this.value > today) {
+                this.value = today;
+                showToast("Future dates are not allowed.", "error");
+            }
+        });
+    }
+
+    // Filter attendance by Present or Absent.
+    const attendanceFilter = document.getElementById("attendanceFilter");
+
+    attendanceFilter.addEventListener("change", function () {
+        const selectedStatus = this.value;
+        const rows = document.querySelectorAll(
+            "#attendanceTableBody tr[data-status]"
+        );
+
+        rows.forEach(function (row) {
+            const rowStatus = row.getAttribute("data-status");
+
+            row.style.display =
+                selectedStatus === "all" ||
+                rowStatus === selectedStatus
+                    ? ""
+                    : "none";
+        });
+    });
+
+    // Toast notification helper.
+    function showToast(message, type = "success") {
+        const container = document.getElementById("toastContainer");
+        const toast = document.createElement("div");
+
+        toast.className = "toast" +
+            (type === "error" ? " error" :
+             type === "warning" ? " warning" : "");
+
+        const icon = document.createElement("span");
+        icon.className = "toast-icon";
+        icon.textContent = type === "error" || type === "warning"
+            ? "!"
+            : "✓";
+
+        const text = document.createElement("span");
+        text.className = "toast-message";
+        text.textContent = message;
+
+        const close = document.createElement("button");
+        close.type = "button";
+        close.className = "toast-close";
+        close.setAttribute("aria-label", "Close notification");
+        close.textContent = "×";
+
+        toast.append(icon, text, close);
+        container.appendChild(toast);
+
+        const removeToast = () => {
+            if (!toast.isConnected) return;
+            toast.classList.add("removing");
+            setTimeout(() => toast.remove(), 250);
+        };
+
+        close.addEventListener("click", removeToast);
+        setTimeout(removeToast, 3500);
+    }
+
+    // Close server-generated and JavaScript-generated notifications.
+    document.querySelectorAll(".toast").forEach(function (toast) {
+        const close = toast.querySelector(".toast-close");
+
+        function removeToast() {
+            toast.classList.add("removing");
+            setTimeout(() => toast.remove(), 250);
+        }
+
+        if (close) {
+            close.addEventListener("click", removeToast);
+        }
+
+        setTimeout(removeToast, 3500);
+    });
+
+    // Delete confirmation popup.
+    const deleteModal = document.getElementById("deleteModal");
+    const cancelDelete = document.getElementById("cancelDelete");
+    const confirmDelete = document.getElementById("confirmDelete");
+
+    let formToDelete = null;
+
+    document.querySelectorAll(".open-delete-modal").forEach(function (button) {
+        button.addEventListener("click", function () {
+            formToDelete = button.closest(".delete-form");
+            deleteModal.classList.add("show");
+            cancelDelete.focus();
+        });
+    });
+
+    cancelDelete.addEventListener("click", function () {
+        deleteModal.classList.remove("show");
+        formToDelete = null;
+    });
+
+    confirmDelete.addEventListener("click", function () {
+        if (formToDelete) {
+            formToDelete.submit();
+        }
+    });
+
+    deleteModal.addEventListener("click", function (event) {
+        if (event.target === deleteModal) {
+            deleteModal.classList.remove("show");
+            formToDelete = null;
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && deleteModal.classList.contains("show")) {
+            deleteModal.classList.remove("show");
+            formToDelete = null;
+        }
+    });
+</script>
 
 </body>
 </html>

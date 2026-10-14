@@ -1,142 +1,860 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Marks Management</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Marks Management | Smart Student Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f2f5fb;
+            color: #263b59;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        .page-container {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 10px 35px rgba(31, 51, 91, 0.08);
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 26px;
+            padding: 13px 22px;
+            border-radius: 10px;
+            background: #2864f6;
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.2s;
+        }
+
+        .back-button:hover {
+            background: #174dcc;
+        }
+
+        h1 {
+            margin: 0 0 28px;
+            color: #2c4c94;
+            font-size: 36px;
+            font-weight: 750;
+        }
+
+        h2 {
+            margin: 0;
+            color: #263b59;
+            font-size: 27px;
+        }
+
+        /* Toast notification */
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: min(420px, calc(100vw - 40px));
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px;
+            margin-bottom: 12px;
+            background: #fff;
+            border-left: 4px solid #16a34a;
+            border-radius: 12px;
+            color: #263b59;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.15);
+            animation: slideIn 0.3s ease;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .toast.error {
+            border-left-color: #ef242b;
+        }
+
+        .toast-icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .toast-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            min-height: auto;
+            padding: 0 4px;
+            border: none;
+            background: transparent;
+            color: #718096;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .toast-close:hover {
+            background: transparent;
+            color: #111827;
+            transform: none;
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateX(20px);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Add marks form */
+
+        .marks-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1.15fr;
+            gap: 14px;
+            align-items: center;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            height: 54px;
+            padding: 0 16px;
+            border: 1px solid #dce4f1;
+            border-radius: 12px;
+            background: #fff;
+            color: #203654;
+            font-size: 15px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            border-color: #5684ff;
+            box-shadow: 0 0 0 3px rgba(40, 100, 246, 0.12);
+        }
+
+        .primary-button {
+            min-height: 54px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 12px;
+            background: #2864f6;
+            color: #fff;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .primary-button:hover {
+            background: #174dcc;
+        }
+
+        .divider {
+            margin: 26px 0 30px;
+            border: none;
+            border-top: 1px solid #e8edf5;
+        }
+
+        .list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .filter-select {
+            width: 250px;
+            max-width: 100%;
+        }
+
+        /* Marks table */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid #dce4f1;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            min-width: 850px;
+            border-collapse: collapse;
+            text-align: center;
+        }
+
+        thead {
+            background: #3264e8;
+            color: #fff;
+        }
+
+        th {
+            padding: 17px 12px;
+            font-size: 15px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 14px 12px;
+            border-bottom: 1px solid #e8edf5;
+            border-right: 1px solid #edf1f7;
+            font-size: 15px;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #f4f7fb;
+        }
+
+        tbody tr:nth-child(odd) {
+            background: #fff;
+        }
+
+        tbody tr:hover {
+            background: #edf3ff;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        td:last-child,
+        th:last-child {
+            border-right: none;
+        }
+
+        .course-badge,
+        .marks-badge {
+            display: inline-block;
+            min-width: 42px;
+            padding: 7px 13px;
+            border-radius: 20px;
+            background: #dceaff;
+            color: #1555c0;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .pg-badge {
+            background: #eee4ff;
+            color: #7434c5;
+        }
+
+        .edit-button,
+        .delete-button {
+            display: inline-block;
+            padding: 9px 17px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background: #16a34a;
+        }
+
+        .edit-button:hover {
+            background: #12813b;
+        }
+
+        .delete-button {
+            background: #ef242b;
+        }
+
+        .delete-button:hover {
+            background: #c91920;
+        }
+
+        .empty-state {
+            padding: 35px 15px;
+            color: #718096;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        /* Custom delete confirmation modal */
+
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(25, 40, 65, 0.45);
+            backdrop-filter: blur(4px);
+        }
+
+        .delete-modal-overlay.show {
+            display: flex;
+        }
+
+        .delete-modal {
+            width: 100%;
+            max-width: 430px;
+            padding: 30px;
+            border-radius: 18px;
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.2s ease;
+        }
+
+        .delete-modal-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 58px;
+            height: 58px;
+            margin-bottom: 20px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #dc2626;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .delete-modal h2 {
+            margin: 0 0 12px;
+            font-size: 24px;
+        }
+
+        .delete-modal p {
+            margin: 0 0 26px;
+            color: #718096;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        .delete-modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+
+        .cancel-delete,
+        .confirm-delete {
+            min-height: 46px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cancel-delete {
+            background: #edf2f7;
+            color: #334155;
+        }
+
+        .cancel-delete:hover {
+            background: #dfe7f1;
+        }
+
+        .confirm-delete {
+            background: #ef242b;
+            color: #fff;
+        }
+
+        .confirm-delete:hover {
+            background: #c91920;
+        }
+
+        .confirm-delete:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
+        @keyframes modalAppear {
+            from {
+                opacity: 0;
+                transform: translateY(10px) scale(0.98);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .marks-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .marks-form .primary-button {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .page-container {
+                padding: 18px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 27px;
+            }
+
+            h2 {
+                font-size: 22px;
+            }
+
+            .marks-form {
+                grid-template-columns: 1fr;
+            }
+
+            .marks-form .primary-button {
+                grid-column: auto;
+            }
+
+            .list-header {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .filter-select {
+                width: 100%;
+            }
+
+            .delete-modal {
+                padding: 23px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
+    <!-- Success and error toast notifications -->
+    <div class="toast-container" id="toastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="toast {% if category == 'error' or category == 'danger' %}error{% endif %}">
+                    <span class="toast-icon">
+                        {% if category == 'error' or category == 'danger' %}
+                            !
+                        {% else %}
+                            ✓
+                        {% endif %}
+                    </span>
 
-    <h1>Marks Management</h1>
+                    <span class="toast-text">{{ message }}</span>
 
-    <form method="POST">
-
-        <!-- Student Dropdown -->
-        <select name="student_name" required>
-            <option value="">Select Student</option>
-
-            {% for student in students %}
-            <option value="{{ student[0] }}">
-                {{ student[0] }}
-            </option>
+                    <button type="button"
+                            class="toast-close"
+                            aria-label="Close notification"
+                            onclick="closeToast(this)">×</button>
+                </div>
             {% endfor %}
-        </select>
+        {% endwith %}
+    </div>
 
-        <!-- Subject Dropdown -->
-        <select
-            name="subject_name"
-            id="subjectSelect"
-            onchange="toggleSubjectField()"
-            required>
+    <div class="page-container">
 
-            <option value="">Select Subject</option>
+        <a href="{{ url_for('dashboard') }}" class="back-button">
+             Back to Dashboard
+        </a>
 
-            {% for subject in subjects %}
-            <option value="{{ subject[0] }}">
-                {{ subject[0] }}
-            </option>
-            {% endfor %}
+        <h1>📊 Marks Management</h1>
 
-            <option value="Other">Other</option>
+        <!-- Add marks form -->
+        <form method="POST"
+              action="{{ url_for('marks') }}"
+              class="marks-form"
+              id="marksForm">
 
-        </select>
+            <select name="course_type"
+                    id="courseType"
+                    required>
+                <option value="">Select Course Type</option>
 
-        <!-- Custom Subject -->
-        <input
-            type="text"
-            id="customSubject"
-            name="custom_subject"
-            placeholder="Enter New Subject"
-            style="display:none;">
+                <option value="UG"
+                    {% if course_type == 'UG' %}selected{% endif %}>
+                    UG
+                </option>
 
-        <!-- Marks -->
-        <input
-            type="number"
-            name="marks"
-            placeholder="Enter Marks"
-            required>
+                <option value="PG"
+                    {% if course_type == 'PG' %}selected{% endif %}>
+                    PG
+                </option>
+            </select>
 
-        <button type="submit">
-            Add Marks
-        </button>
+            <select name="student_id"
+                    id="studentId"
+                    required
+                    {% if not course_type %}disabled{% endif %}>
+                <option value="">Select Student</option>
 
-    </form>
+                {% for student in students %}
+                    <option value="{{ student['id'] }}">
+                        {{ student['name'] }}
+                    </option>
+                {% endfor %}
+            </select>
 
-    <hr>
+            <select name="subject_id"
+                    id="subjectId"
+                    required
+                    {% if not course_type %}disabled{% endif %}>
+                <option value="">Select Subject</option>
 
-    <h2>Marks List</h2>
+                {% for subject in subjects %}
+                    <option value="{{ subject['id'] }}">
+                        {{ subject['subject_name'] }}
+                        {% if subject['subject_code'] %}
+                            ({{ subject['subject_code'] }})
+                        {% endif %}
+                    </option>
+                {% endfor %}
+            </select>
 
-    <table>
+            <input type="number"
+                   name="marks"
+                   id="marksInput"
+                   placeholder="Enter Marks (0–100)"
+                   min="0"
+                   max="100"
+                   step="1"
+                   required>
 
-        <tr>
-            <th>ID</th>
-            <th>Student Name</th>
-            <th>Subject</th>
-            <th>Marks</th>
-            <th>Edit</th>
-            <th>Delete</th>
-        </tr>
+            <button type="submit" class="primary-button">
+                Add Marks
+            </button>
+        </form>
 
-        {% for mark in marks_data %}
+        <hr class="divider">
 
-        <tr>
+        <!-- Marks list and filter -->
+        <div class="list-header">
+            <h2>Marks List</h2>
 
-            <td>{{ mark[0] }}</td>
-            <td>{{ mark[1] }}</td>
-            <td>{{ mark[2] }}</td>
-            <td>{{ mark[3] }}</td>
+            <select class="filter-select"
+                    id="marksFilter"
+                    aria-label="Filter marks">
 
-            <td>
-                <a
-                    href="/edit_mark/{{ mark[0] }}"
-                    class="edit-btn">
-                    Edit
-                </a>
-            </td>
+                <option value="ALL"
+                    {% if not course_type %}selected{% endif %}>
+                    Show All Marks
+                </option>
 
-            <td>
-                <a
-                    href="/delete_mark/{{ mark[0] }}"
-                    class="delete-btn"
-                    onclick="return confirm('Delete Record?')">
-                    Delete
-                </a>
-            </td>
+                <option value="UG"
+                    {% if course_type == 'UG' %}selected{% endif %}>
+                    Show UG Marks
+                </option>
 
-        </tr>
+                <option value="PG"
+                    {% if course_type == 'PG' %}selected{% endif %}>
+                    Show PG Marks
+                </option>
+            </select>
+        </div>
 
-        {% endfor %}
+        <!-- Marks table -->
+        <div class="table-wrapper">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Course Type</th>
+                        <th>Subject Name</th>
+                        <th>Marks</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                </thead>
 
-    </table>
+                <tbody>
+                    {% for mark in marks_data %}
+                        <tr>
+                            <td>{{ mark['id'] }}</td>
 
-</div>
+                            <td>{{ mark['student_name'] }}</td>
 
-<script>
+                            <td>
+                                {% set displayed_type = mark['display_course_type']|default(mark['course_type']|default('', true), true)|upper %}
 
-function toggleSubjectField() {
+                                {% if displayed_type == 'UG' %}
+                                    <span class="course-badge">UG</span>
+                                {% elif displayed_type == 'PG' %}
+                                    <span class="course-badge pg-badge">PG</span>
+                                {% else %}
+                                    <span class="course-badge">—</span>
+                                {% endif %}
+                            </td>
 
-    let subject =
-        document.getElementById("subjectSelect").value;
+                            <td>{{ mark['subject_name'] }}</td>
 
-    let textbox =
-        document.getElementById("customSubject");
+                            <td>
+                                <span class="marks-badge">
+                                    {{ mark['marks'] }}
+                                </span>
+                            </td>
 
-    if(subject === "Other") {
+                            <td>
+                                <a href="{{ url_for('edit_mark', id=mark['id']) }}"
+                                   class="edit-button">
+                                    Edit
+                                </a>
+                            </td>
 
-        textbox.style.display = "block";
-        textbox.required = true;
+                            <td>
+                                <form method="POST"
+                                      action="{{ url_for('delete_mark', id=mark['id']) }}"
+                                      class="delete-form"
+                                      style="margin:0;">
 
-    } else {
+                                    <button type="submit"
+                                            class="delete-button">
+                                        Delete
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="7" class="empty-state">
+                                No marks found for this selection.
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
 
-        textbox.style.display = "none";
-        textbox.required = false;
-        textbox.value = "";
+    </div>
 
-    }
-}
+    <!-- Custom Delete Confirmation Modal -->
+    <div class="delete-modal-overlay"
+         id="deleteModal"
+         aria-hidden="true">
 
-</script>
+        <div class="delete-modal"
+             role="dialog"
+             aria-modal="true"
+             aria-labelledby="deleteTitle"
+             aria-describedby="deleteDescription">
+
+            <div class="delete-modal-icon">!</div>
+
+            <h2 id="deleteTitle">Delete Marks?</h2>
+
+            <p id="deleteDescription">
+                Are you sure you want to delete these marks?
+                This action cannot be undone.
+            </p>
+
+            <div class="delete-modal-actions">
+                <button type="button"
+                        class="cancel-delete"
+                        id="cancelDelete">
+                    Cancel
+                </button>
+
+                <button type="button"
+                        class="confirm-delete"
+                        id="confirmDelete">
+                    Delete Marks
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Close toast notifications.
+        function dismissToast(toast) {
+            if (!toast || !toast.isConnected) return;
+
+            toast.classList.add("hide");
+
+            setTimeout(function () {
+                toast.remove();
+            }, 300);
+        }
+
+        function closeToast(button) {
+            dismissToast(button.closest(".toast"));
+        }
+
+        // Automatically close toast messages after 4 seconds.
+        document.querySelectorAll(".toast").forEach(function (toast) {
+            setTimeout(function () {
+                dismissToast(toast);
+            }, 4000);
+        });
+
+        // Reload the page for the selected UG/PG course type.
+        document.getElementById("courseType")
+            .addEventListener("change", function () {
+                const type = this.value;
+
+                if (type === "UG" || type === "PG") {
+                    window.location.href =
+                        "{{ url_for('marks') }}?course_type=" +
+                        encodeURIComponent(type);
+                } else {
+                    window.location.href = "{{ url_for('marks') }}";
+                }
+            });
+
+        // Filter the marks list.
+        document.getElementById("marksFilter")
+            .addEventListener("change", function () {
+                const type = this.value;
+
+                if (type === "ALL") {
+                    window.location.href = "{{ url_for('marks') }}";
+                } else {
+                    window.location.href =
+                        "{{ url_for('marks') }}?course_type=" +
+                        encodeURIComponent(type);
+                }
+            });
+
+        // Validate marks before submission.
+        document.getElementById("marksForm")
+            .addEventListener("submit", function (event) {
+                const student =
+                    document.getElementById("studentId").value;
+
+                const subject =
+                    document.getElementById("subjectId").value;
+
+                const marks = Number(
+                    document.getElementById("marksInput").value
+                );
+
+                if (!student || !subject) {
+                    event.preventDefault();
+                    alert("Please select a course type, student and subject.");
+                    return;
+                }
+
+                if (!Number.isInteger(marks) ||
+                    marks < 0 ||
+                    marks > 100) {
+                    event.preventDefault();
+                    alert("Marks must be a whole number between 0 and 100.");
+                }
+            });
+
+        // Custom delete confirmation modal.
+        const deleteModal = document.getElementById("deleteModal");
+        const cancelDelete = document.getElementById("cancelDelete");
+        const confirmDelete = document.getElementById("confirmDelete");
+
+        let selectedDeleteForm = null;
+
+        document.querySelectorAll(".delete-form")
+            .forEach(function (form) {
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+
+                    selectedDeleteForm = form;
+                    confirmDelete.disabled = false;
+
+                    deleteModal.classList.add("show");
+                    deleteModal.setAttribute("aria-hidden", "false");
+
+                    cancelDelete.focus();
+                });
+            });
+
+        function closeDeleteModal() {
+            deleteModal.classList.remove("show");
+            deleteModal.setAttribute("aria-hidden", "true");
+            selectedDeleteForm = null;
+            confirmDelete.disabled = false;
+        }
+
+        cancelDelete.addEventListener("click", function () {
+            closeDeleteModal();
+        });
+
+        confirmDelete.addEventListener("click", function () {
+            if (!selectedDeleteForm) return;
+
+            const formToSubmit = selectedDeleteForm;
+
+            confirmDelete.disabled = true;
+            confirmDelete.textContent = "Deleting...";
+
+            // Submit the original form to the existing Flask delete route.
+            HTMLFormElement.prototype.submit.call(formToSubmit);
+        });
+
+        // Close modal when clicking the dark background.
+        deleteModal.addEventListener("click", function (event) {
+            if (event.target === deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        // Escape closes the modal without deleting anything.
+        document.addEventListener("keydown", function (event) {
+            if (event.key === "Escape" &&
+                deleteModal.classList.contains("show")) {
+                closeDeleteModal();
+            }
+        });
+    </script>
 
 </body>
 </html>

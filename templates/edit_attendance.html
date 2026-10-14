@@ -1,52 +1,386 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Edit Attendance</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Attendance | Smart Student Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f2f5fb;
+            font-family: Arial, Helvetica, sans-serif;
+            color: #183153;
+        }
+
+        .edit-container {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 32px;
+            background: #fff;
+            border-radius: 22px;
+            box-shadow: 0 10px 35px rgba(36, 58, 100, 0.07);
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 12px 22px;
+            margin-bottom: 32px;
+            border-radius: 10px;
+            background: #2962f6;
+            color: #fff;
+            text-decoration: none;
+            font-size: 15px;
+            font-weight: 600;
+            transition: background .2s ease;
+        }
+
+        .back-btn:hover {
+            background: #174bd1;
+        }
+
+        .page-title {
+            margin: 0 0 32px;
+            color: #29488f;
+            font-size: 40px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        /* Five-column layout like Edit Marks */
+        .edit-form {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 18px;
+            align-items: center;
+        }
+
+        .edit-form select,
+        .edit-form input {
+            width: 100%;
+            min-width: 0;
+            height: 72px;
+            padding: 0 18px;
+            border: 1px solid #dce4f0;
+            border-radius: 16px;
+            background: #fff;
+            color: #183153;
+            font-family: inherit;
+            font-size: 18px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+
+        .edit-form select:focus,
+        .edit-form input:focus {
+            border-color: #2962f6;
+            box-shadow: 0 0 0 3px rgba(41, 98, 246, .09);
+        }
+
+        .update-btn {
+            width: 100%;
+            height: 72px;
+            padding: 0 12px;
+            border: none;
+            border-radius: 15px;
+            background: #2962f6;
+            color: #fff;
+            font-family: inherit;
+            font-size: 17px;
+            font-weight: 700;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s ease;
+        }
+
+        .update-btn:hover {
+            background: #174bd1;
+        }
+
+        .info-divider {
+            border: none;
+            border-top: 1px solid #e4eaf3;
+            margin: 38px 0;
+        }
+
+        .info-title {
+            margin: 0 0 24px;
+            color: #263b56;
+            font-size: 30px;
+            font-weight: 700;
+        }
+
+        .info-description {
+            margin: 0;
+            color: #647894;
+            font-size: 18px;
+            line-height: 1.7;
+        }
+
+        .info-description strong {
+            color: #526985;
+        }
+
+        /* Toast messages */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            right: 16px;
+            z-index: 9999;
+            width: min(390px, calc(100vw - 32px));
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            margin-bottom: 10px;
+            border-left: 4px solid #16a34a;
+            border-radius: 10px;
+            background: #fff;
+            box-shadow: 0 8px 25px rgba(23, 42, 77, .15);
+            color: #263445;
+            font-size: 14px;
+        }
+
+        .toast.error {
+            border-left-color: #dc2626;
+        }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: 700;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .toast-message {
+            flex: 1;
+        }
+
+        .toast-close {
+            padding: 0;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 1300px) {
+            .edit-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .update-btn {
+                grid-column: auto;
+            }
+
+            .edit-form select,
+            .edit-form input,
+            .update-btn {
+                height: 60px;
+                font-size: 16px;
+            }
+
+            .page-title {
+                font-size: 34px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .edit-container {
+                padding: 20px;
+                border-radius: 14px;
+            }
+
+            .page-title {
+                font-size: 28px;
+                margin-bottom: 24px;
+            }
+
+            .edit-form {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .edit-form select,
+            .edit-form input,
+            .update-btn {
+                height: 54px;
+                font-size: 15px;
+            }
+
+            .info-divider {
+                margin: 28px 0;
+            }
+
+            .info-title {
+                font-size: 24px;
+                margin-bottom: 16px;
+            }
+
+            .info-description {
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="container">
+    <!-- Flash notifications -->
+    <div class="toast-container" aria-live="polite">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast {% if category == 'error' %}error{% endif %}">
+                        <span class="toast-icon">
+                            {% if category == 'error' %}!{% else %}✓{% endif %}
+                        </span>
 
-    <h1>Edit Attendance</h1>
+                        <span class="toast-message">{{ message }}</span>
 
-    <form method="POST">
+                        <button type="button"
+                                class="toast-close"
+                                aria-label="Close notification">×</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
 
-        <input
-            type="text"
-            name="student_name"
-            value="{{ attendance[1] }}"
-            required
-        >
+    <div class="edit-container">
 
-        <input
-            type="date"
-            name="date"
-            value="{{ attendance[2] }}"
-            required
-        >
+        <a href="{{ url_for('attendance') }}" class="back-btn">
+            Back to Attendance
+        </a>
 
-        <select name="status">
+        <h1 class="page-title">🗓️ Edit Attendance</h1>
 
-            <option value="Present"
-            {% if attendance[3] == 'Present' %}selected{% endif %}>
-            Present
-            </option>
+        <form method="POST" class="edit-form">
 
-            <option value="Absent"
-            {% if attendance[3] == 'Absent' %}selected{% endif %}>
-            Absent
-            </option>
+            <!-- Student -->
+            <select name="student_name" required>
+                {% for student in students %}
+                    <option
+                        value="{{ student['name'] }}"
+                        {% if student['name'] == attendance['student_name'] %}
+                            selected
+                        {% endif %}>
+                        {{ student['name'] }}
+                    </option>
+                {% endfor %}
+            </select>
 
-        </select>
+            <!-- Date -->
+            <input
+                type="date"
+                name="date"
+                id="attendanceDate"
+                value="{{ attendance['date'] }}"
+                max="{{ today }}"
+                required
+            >
 
-        <button type="submit">
-            Update Attendance
-        </button>
+            <!-- Status -->
+            <select name="status" required>
+                <option value="Present"
+                    {% if attendance['status'] == 'Present' %}selected{% endif %}>
+                    Present
+                </option>
 
-    </form>
+                <option value="Absent"
+                    {% if attendance['status'] == 'Absent' %}selected{% endif %}>
+                    Absent
+                </option>
+            </select>
 
-</div>
+            <!-- Update button -->
+            <button type="submit" class="update-btn">
+                ✓ Update Attendance
+            </button>
+
+        </form>
+
+        <hr class="info-divider">
+
+        <section>
+            <h2 class="info-title">Attendance Information</h2>
+
+            <p class="info-description">
+                Update the attendance details above and click
+                <strong>Update Attendance</strong> to save your changes.
+                Future dates are not allowed.
+            </p>
+        </section>
+
+    </div>
+
+    <script>
+        function getLocalToday() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, "0");
+            const day = String(now.getDate()).padStart(2, "0");
+
+            return `${year}-${month}-${day}`;
+        }
+
+        const dateInput = document.getElementById("attendanceDate");
+
+        if (dateInput) {
+            const today = getLocalToday();
+            dateInput.max = today;
+
+            dateInput.addEventListener("change", function () {
+                if (this.value > today) {
+                    this.value = today;
+                    alert("Future dates are not allowed.");
+                }
+            });
+        }
+
+        document.querySelectorAll(".toast").forEach(function (toast) {
+            const closeButton = toast.querySelector(".toast-close");
+
+            if (closeButton) {
+                closeButton.addEventListener("click", function () {
+                    toast.remove();
+                });
+            }
+
+            setTimeout(function () {
+                toast.remove();
+            }, 3500);
+        });
+    </script>
 
 </body>
 </html>

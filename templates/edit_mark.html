@@ -1,82 +1,393 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Edit Marks</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Marks | Smart Student Management</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
 
     <style>
-
-        body{
-            font-family: Arial;
-            background:#f4f6f9;
-            padding:20px;
+        * {
+            box-sizing: border-box;
         }
 
-        .container{
-            background:white;
-            padding:20px;
-            border-radius:10px;
-            box-shadow:0px 0px 10px #ddd;
-            width:500px;
-            margin:auto;
+        body {
+            margin: 0;
+            padding: 20px;
+            background: #f2f5fb;
+            color: #263b59;
+            font-family: Arial, Helvetica, sans-serif;
         }
 
-        h1{
-            color:#1e3a8a;
+        .page-container {
+            width: 100%;
+            max-width: 1800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: #ffffff;
+            border-radius: 22px;
+            box-shadow: 0 10px 35px rgba(31, 51, 91, 0.08);
         }
 
-        input{
-            width:100%;
-            padding:10px;
-            margin:10px 0;
+        .back-button {
+            display: inline-block;
+            margin-bottom: 28px;
+            padding: 13px 22px;
+            background: #2864f6;
+            color: #ffffff;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: background 0.2s;
         }
 
-        button{
-            background:#2563eb;
-            color:white;
-            border:none;
-            padding:10px 20px;
-            border-radius:5px;
-            cursor:pointer;
+        .back-button:hover {
+            background: #174dcc;
         }
 
+        h1 {
+            margin: 0 0 30px;
+            color: #2c4c94;
+            font-size: 38px;
+            font-weight: 750;
+        }
+
+        .edit-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr 1fr 1.15fr;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .edit-form input,
+        .edit-form select {
+            width: 100%;
+            min-width: 0;
+            height: 72px;
+            padding: 0 18px;
+            border: 1px solid #dce4f1;
+            border-radius: 15px;
+            background: #ffffff;
+            color: #203654;
+            font-size: 18px;
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .edit-form input:focus,
+        .edit-form select:focus {
+            border-color: #5684ff;
+            box-shadow: 0 0 0 3px rgba(40, 100, 246, 0.12);
+        }
+
+        .update-button {
+            height: 72px;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 15px;
+            background: #2864f6;
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+
+        .update-button:hover {
+            background: #174dcc;
+            transform: translateY(-1px);
+        }
+
+        .divider {
+            margin: 38px 0;
+            border: none;
+            border-top: 1px solid #e8edf5;
+        }
+
+        .information h2 {
+            margin: 0 0 20px;
+            color: #263b59;
+            font-size: 32px;
+        }
+
+        .information p {
+            margin: 0;
+            color: #718096;
+            font-size: 18px;
+            line-height: 1.8;
+        }
+
+        /* Toast notifications */
+
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            width: min(420px, calc(100vw - 40px));
+        }
+
+        .toast {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 17px;
+            margin-bottom: 12px;
+            border-left: 4px solid #16a34a;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #263b59;
+            box-shadow: 0 10px 30px rgba(31, 41, 55, 0.15);
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.error {
+            border-left-color: #ef242b;
+        }
+
+        .toast-icon {
+            width: 28px;
+            height: 28px;
+            min-width: 28px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .toast-text {
+            flex: 1;
+            line-height: 1.5;
+        }
+
+        .toast-close {
+            border: none;
+            background: transparent;
+            color: #718096;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        .toast-close:hover {
+            background: transparent;
+            color: #111827;
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateX(20px);
+            transition: 0.3s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .edit-form {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .update-button {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+
+            .page-container {
+                padding: 20px;
+                border-radius: 14px;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .edit-form {
+                grid-template-columns: 1fr;
+            }
+
+            .edit-form input,
+            .edit-form select,
+            .update-button {
+                height: 58px;
+                font-size: 16px;
+            }
+
+            .update-button {
+                grid-column: auto;
+            }
+
+            .information h2 {
+                font-size: 25px;
+            }
+
+            .information p {
+                font-size: 15px;
+            }
+        }
     </style>
-
 </head>
+
 <body>
 
-<div class="container">
+    <!-- Toast messages -->
+    <div class="toast-container" id="toastContainer">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="toast {% if category == 'error' or category == 'danger' %}error{% endif %}">
+                    <span class="toast-icon">
+                        {% if category == 'error' or category == 'danger' %}
+                            !
+                        {% else %}
+                            ✓
+                        {% endif %}
+                    </span>
 
-<h1>Edit Marks</h1>
+                    <span class="toast-text">{{ message }}</span>
 
-<form method="POST">
+                    <button type="button"
+                            class="toast-close"
+                            onclick="closeToast(this)"
+                            aria-label="Close notification">×</button>
+                </div>
+            {% endfor %}
+        {% endwith %}
+    </div>
 
-    <input
-    type="text"
-    name="student_name"
-    value="{{ mark[1] }}"
-    required>
+    <div class="page-container">
 
-    <input
-    type="text"
-    name="subject_name"
-    value="{{ mark[2] }}"
-    required>
+        <a href="{{ url_for('marks') }}" class="back-button">
+            ← Back to Marks
+        </a>
 
-    <input
-    type="number"
-    name="marks"
-    value="{{ mark[3] }}"
-    required>
+        <h1>📊 Edit Marks</h1>
 
-    <br><br>
+        <form method="POST"
+              action="{{ url_for('edit_mark', id=mark['id']) }}"
+              class="edit-form"
+              id="editMarksForm">
 
-    <button type="submit">
-        Update Marks
-    </button>
+            <input type="text"
+                   name="student_name"
+                   value="{{ mark['student_name'] }}"
+                   placeholder="Student Name"
+                   required>
 
-</form>
+            <input type="text"
+                   name="subject_name"
+                   value="{{ mark['subject_name'] }}"
+                   placeholder="Subject Name"
+                   required>
 
-</div>
+            <input type="number"
+                   name="marks"
+                   value="{{ mark['marks'] }}"
+                   placeholder="Enter Marks"
+                   min="0"
+                   max="100"
+                   step="1"
+                   required>
+
+            <select name="course_type" required>
+                <option value="">Select Course Type</option>
+
+                <option value="UG"
+                    {% if mark['course_type']|upper == 'UG' %}selected{% endif %}>
+                    UG
+                </option>
+
+                <option value="PG"
+                    {% if mark['course_type']|upper == 'PG' %}selected{% endif %}>
+                    PG
+                </option>
+            </select>
+
+            <button type="submit" class="update-button">
+                ✓ Update Marks
+            </button>
+
+        </form>
+
+        <hr class="divider">
+
+        <section class="information">
+            <h2>Marks Information</h2>
+
+            <p>
+                Update the student's marks above and click
+                <strong>Update Marks</strong> to save your changes.
+                Marks must be between 0 and 100.
+            </p>
+        </section>
+
+    </div>
+
+    <script>
+        // Close notification manually.
+        function closeToast(button) {
+            const toast = button.closest(".toast");
+
+            if (!toast) return;
+
+            toast.classList.add("hide");
+
+            setTimeout(function () {
+                toast.remove();
+            }, 300);
+        }
+
+        // Automatically hide notifications after 4 seconds.
+        document.querySelectorAll(".toast").forEach(function (toast) {
+            setTimeout(function () {
+                if (!toast.isConnected) return;
+
+                toast.classList.add("hide");
+
+                setTimeout(function () {
+                    toast.remove();
+                }, 300);
+            }, 4000);
+        });
+
+        // Validate marks before submitting.
+        document.getElementById("editMarksForm")
+            .addEventListener("submit", function (event) {
+                const marks = Number(
+                    document.querySelector('[name="marks"]').value
+                );
+
+                if (!Number.isInteger(marks) || marks < 0 || marks > 100) {
+                    event.preventDefault();
+                    alert("Please enter marks between 0 and 100.");
+                }
+            });
+    </script>
 
 </body>
 </html>

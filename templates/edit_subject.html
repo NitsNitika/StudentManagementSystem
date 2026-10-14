@@ -1,46 +1,361 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Edit Subject</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Edit Subject | Smart Student Management</title>
 
     <link rel="stylesheet"
           href="{{ url_for('static', filename='style.css') }}">
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 26px;
+            background: #f4f6fb;
+            font-family: Arial, sans-serif;
+            color: #1f2937;
+        }
+
+        .container {
+            max-width: 1500px;
+            margin: auto;
+            padding: 35px 40px;
+            background: #ffffff;
+            border-radius: 18px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 24px;
+            padding: 13px 20px;
+            border-radius: 9px;
+            background: #2563eb;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: #1d4ed8;
+        }
+
+        h1 {
+            margin: 0 0 28px;
+            color: #1e3a8a;
+            font-size: 42px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 16px;
+            align-items: center;
+        }
+
+        input, select, button {
+            width: 100%;
+            min-width: 0;
+            min-height: 62px;
+            padding: 15px 16px;
+            border: 1px solid #d5dce6;
+            border-radius: 11px;
+            font-size: 16px;
+        }
+
+        input, select {
+            background: #ffffff;
+            color: #111827;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        hr {
+            border: 0;
+            border-top: 1px solid #e5e7eb;
+            margin: 35px 0;
+        }
+
+        h2 {
+            margin: 0 0 18px;
+            color: #1f2937;
+            font-size: 30px;
+        }
+
+        .description {
+            margin: 0;
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.7;
+        }
+
+        /* Notification popup */
+
+        .toast {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            width: 420px;
+            max-width: calc(100vw - 32px);
+            padding: 18px 20px;
+            background: #ffffff;
+            border: 1px solid #dcfce7;
+            border-left: 5px solid #16a34a;
+            border-radius: 15px;
+            box-shadow: 0 12px 35px rgba(15, 23, 42, 0.13);
+            animation: toastIn 0.3s ease;
+        }
+
+        .toast.error {
+            border-color: #fee2e2;
+            border-left-color: #dc2626;
+        }
+
+        .toast-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .toast-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .toast-title {
+            display: block;
+            margin-bottom: 5px;
+            color: #166534;
+            font-size: 17px;
+            font-weight: bold;
+        }
+
+        .toast.error .toast-title {
+            color: #991b1b;
+        }
+
+        .toast-message {
+            color: #64748b;
+            font-size: 14px;
+            overflow-wrap: anywhere;
+        }
+
+        .toast-close {
+            width: auto;
+            min-height: auto;
+            padding: 3px;
+            border: none;
+            background: transparent;
+            color: #64748b;
+            font-size: 25px;
+            cursor: pointer;
+        }
+
+        .toast-close:hover {
+            background: transparent;
+            color: #111827;
+        }
+
+        .toast.hide {
+            opacity: 0;
+            transform: translateX(25px);
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(25px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 1100px) {
+            .form-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            h1 {
+                font-size: 34px;
+            }
+        }
+
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 22px 18px;
+            }
+
+            h1 {
+                font-size: 29px;
+            }
+
+            h2 {
+                font-size: 25px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .toast {
+                top: 12px;
+                right: 12px;
+                max-width: calc(100vw - 24px);
+            }
+        }
+    </style>
 </head>
+
 <body>
 
 <div class="container">
 
-<h1>Edit Subject</h1>
+    <a href="{{ url_for('subjects') }}" class="back-btn">
+        Back to Subjects
+    </a>
 
-<form method="POST">
+    <h1>📚 Edit Subject</h1>
 
-<input type="text"
-       name="subject_name"
-       value="{{ subject[1] }}"
-       required>
+    <!-- Flash popup messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+            <div class="toast {{ 'error' if category == 'error' else '' }}"
+                 role="status"
+                 aria-live="polite">
 
-<br><br>
+                <div class="toast-icon">
+                    {{ '!' if category == 'error' else '✓' }}
+                </div>
 
-<input type="text"
-       name="subject_code"
-       value="{{ subject[2] }}"
-       required>
+                <div class="toast-content">
+                    <strong class="toast-title">
+                        {{ 'Error' if category == 'error' else 'Success' }}
+                    </strong>
+                    <span class="toast-message">{{ message }}</span>
+                </div>
 
-<br><br>
+                <button type="button"
+                        class="toast-close"
+                        aria-label="Close notification"
+                        onclick="this.parentElement.remove()">
+                    &times;
+                </button>
+            </div>
+        {% endfor %}
+    {% endwith %}
 
-<button type="submit">
-    Update Subject
-</button>
+    <!-- Edit Subject Form -->
+    <form method="POST">
+        <div class="form-grid">
 
-</form>
+            <input type="text"
+                   name="student_name"
+                   placeholder="Student Name"
+                   value="{{ subject[1] }}"
+                   required>
 
-<br>
+            <input type="text"
+                   name="subject_name"
+                   placeholder="Subject Name"
+                   value="{{ subject[2] }}"
+                   required>
 
-<a href="/subjects">
-    Back to Subjects
-</a>
+            <input type="text"
+                   name="subject_code"
+                   placeholder="Subject Code"
+                   value="{{ subject[3] }}"
+                   required>
+
+            <select name="course_type" required>
+                <option value="UG"
+                    {% if subject[4] == 'UG' %}selected{% endif %}>
+                    UG
+                </option>
+
+                <option value="PG"
+                    {% if subject[4] == 'PG' %}selected{% endif %}>
+                    PG
+                </option>
+            </select>
+
+            <button type="submit">✓ Update Subject</button>
+
+        </div>
+    </form>
+
+    <hr>
+
+    <h2>Subject Information</h2>
+
+    <p class="description">
+        Update the subject details above and click
+        <strong>Update Subject</strong> to save your changes.
+    </p>
 
 </div>
+
+<script>
+    document.querySelectorAll(".toast").forEach(function (toast) {
+        setTimeout(function () {
+            if (!toast.isConnected) return;
+
+            toast.classList.add("hide");
+
+            setTimeout(function () {
+                toast.remove();
+            }, 300);
+        }, 3000);
+    });
+</script>
 
 </body>
 </html>
