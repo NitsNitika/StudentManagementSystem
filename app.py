@@ -47,7 +47,8 @@ def initialize_database():
             email TEXT,
             course TEXT,
             semester TEXT,
-            course_type TEXT DEFAULT 'UG'
+            course_type TEXT DEFAULT 'UG',
+            student_code TEXT
         )
     """)
 
@@ -82,12 +83,13 @@ def initialize_database():
 
     # Add missing columns without deleting existing data.
     ensure_column(conn, "students", "course_type", "TEXT DEFAULT 'UG'")
+    ensure_column(conn, "students", "student_code", "TEXT")
     ensure_column(conn, "subjects", "student_name", "TEXT")
     ensure_column(conn, "subjects", "subject_code", "TEXT")
     ensure_column(conn, "subjects", "course_type", "TEXT DEFAULT 'UG'")
     ensure_column(conn, "marks", "course_type", "TEXT")
 
-    # Normalize course types in existing records.
+    # Normalize course types without blindly changing PG to UG.
     conn.execute("""
         UPDATE students
         SET course_type = UPPER(TRIM(course_type))
@@ -100,23 +102,158 @@ def initialize_database():
         WHERE course_type IS NOT NULL
     """)
 
-    # Recover missing course types on old marks using the student's
-    # name and their subject assignment.
+    # Recover student type from existing register numbers.
+    conn.execute("""
+        UPDATE students
+        SET course_type = 'PG'
+        WHERE UPPER(TRIM(COALESCE(student_code, ''))) LIKE 'MC26MC%'
+    """)
+
+    conn.execute("""
+        UPDATE students
+        SET course_type = 'UG'
+        WHERE UPPER(TRIM(COALESCE(student_code, ''))) LIKE 'MS2353%'
+    """)
+
+    # Recover missing course types from subjects linked by student name.
+    # Use this only when the student has no reliable register-number prefix.
+    conn.execute("""
+        UPDATE students
+        SET course_type = (
+            SELECT UPPER(TRIM(s.course_type))
+            FROM subjects s
+            WHERE LOWER(TRIM(COALESCE(s.student_name, ''))) =
+                  LOWER(TRIM(students.name))
+              AND UPPER(TRIM(COALESCE(s.course_type, ''))) IN ('UG', 'PG')
+            ORDER BY s.id DESC
+            LIMIT 1
+        )
+        WHERE (
+            course_type IS NULL
+            OR TRIM(course_type) = ''
+            OR UPPER(TRIM(course_type)) NOT IN ('UG', 'PG')
+        )
+        AND UPPER(TRIM(COALESCE(student_code, ''))) NOT LIKE 'MC26MC%'
+        AND UPPER(TRIM(COALESCE(student_code, ''))) NOT LIKE 'MS2353%'
+        AND EXISTS (
+            SELECT 1
+            FROM subjects s
+            WHERE LOWER(TRIM(COALESCE(s.student_name, ''))) =
+                  LOWER(TRIM(students.name))
+              AND UPPER(TRIM(COALESCE(s.course_type, ''))) IN ('UG', 'PG')
+        )
+    """)
+
+    # Recover missing course types from recognizable course names.
+    # Do not overwrite a valid UG/PG value.
+    students = conn.execute("""
+        SELECT id, course, course_type, student_code
+        FROM students
+    """).fetchall()
+
+    pg_courses = {
+        "MCA", "MBA", "MSC", "M.SC", "MCOM",
+        "M.COM", "MA", "MTECH", "M.TECH"
+    }
+
+    ug_courses = {
+        "BCA", "BBA", "BSC", "B.SC", "BCOM",
+        "B.COM", "BA", "BE", "BTECH", "B.TECH"
+    }
+
+    for student in students:
+        current_type = (
+            student["course_type"] or ""
+        ).strip().upper()
+
+        code = (student["student_code"] or "").strip().upper()
+        course = (
+            (student["course"] or "")
+            .strip()
+            .upper()
+            .replace(" ", "")
+        )
+
+        # A recognized register-number prefix takes priority.
+        if code.startswith("MC26MC"):
+            current_type = "PG"
+        elif code.startswith("MS2353"):
+            current_type = "UG"
+        elif current_type not in ("UG", "PG"):
+            if course in pg_courses:
+                current_type = "PG"
+            elif course in ug_courses:
+                current_type = "UG"
+
+        # Leave the value untouched if it cannot be identified reliably.
+        if current_type in ("UG", "PG"):
+            conn.execute("""
+                UPDATE students
+                SET course_type = ?
+                WHERE id = ?
+            """, (current_type, student["id"]))
+
+    # Recover missing course types on old marks.
     conn.execute("""
         UPDATE marks
         SET course_type = (
             SELECT UPPER(TRIM(s.course_type))
             FROM subjects s
-            WHERE LOWER(TRIM(s.student_name)) =
-                  LOWER(TRIM(marks.student_name))
-              AND LOWER(TRIM(s.subject_name)) =
-                  LOWER(TRIM(marks.subject_name))
+            WHERE LOWER(TRIM(COALESCE(s.student_name, ''))) =
+                  LOWER(TRIM(COALESCE(marks.student_name, '')))
+              AND LOWER(TRIM(COALESCE(s.subject_name, ''))) =
+                  LOWER(TRIM(COALESCE(marks.subject_name, '')))
+              AND UPPER(TRIM(COALESCE(s.course_type, ''))) IN ('UG', 'PG')
             ORDER BY s.id DESC
             LIMIT 1
         )
-        WHERE course_type IS NULL
-           OR TRIM(course_type) = ''
+        WHERE course_type IS NULL OR TRIM(course_type) = ''
     """)
+
+    # Assign register numbers to existing students without one.
+    # Keep all existing register numbers unchanged.
+    for course_type, prefix in (
+        ("UG", "MS2353"),
+        ("PG", "MC26MC")
+    ):
+        existing_codes = conn.execute("""
+            SELECT student_code
+            FROM students
+            WHERE UPPER(TRIM(COALESCE(student_code, ''))) LIKE ?
+        """, (prefix + "%",)).fetchall()
+
+        numbers = []
+
+        for row in existing_codes:
+            code = (row["student_code"] or "").strip().upper()
+            suffix = code[len(prefix):]
+
+            if suffix.isdigit():
+                numbers.append(int(suffix))
+
+        next_number = max(numbers, default=0) + 1
+
+        missing_students = conn.execute("""
+            SELECT id
+            FROM students
+            WHERE (
+                student_code IS NULL
+                OR TRIM(student_code) = ''
+            )
+            AND UPPER(TRIM(COALESCE(course_type, ''))) = ?
+            ORDER BY id ASC
+        """, (course_type,)).fetchall()
+
+        for student in missing_students:
+            new_code = f"{prefix}{next_number:02d}"
+
+            conn.execute("""
+                UPDATE students
+                SET student_code = ?
+                WHERE id = ?
+            """, (new_code, student["id"]))
+
+            next_number += 1
 
     conn.commit()
     conn.close()
@@ -190,6 +327,40 @@ def dashboard():
 # STUDENT MANAGEMENT
 # =========================================================
 
+def generate_student_code(conn, course_type):
+    course_type = valid_course_type(course_type)
+
+    if course_type == "UG":
+        prefix = "MS2353"
+    elif course_type == "PG":
+        prefix = "MC26MC"
+    else:
+        raise ValueError("Please select UG or PG.")
+
+    # Find the highest number for this course type only
+    rows = conn.execute("""
+        SELECT student_code
+        FROM students
+        WHERE student_code LIKE ?
+    """, (prefix + "%",)).fetchall()
+
+    numbers = []
+
+    for row in rows:
+        code = row["student_code"] or ""
+
+        if code.startswith(prefix):
+            suffix = code[len(prefix):]
+
+            if suffix.isdigit():
+                numbers.append(int(suffix))
+
+    next_number = max(numbers, default=0) + 1
+
+    return f"{prefix}{next_number:02d}"
+
+
+
 @app.route("/students", methods=["GET", "POST"])
 def students():
     conn = get_db()
@@ -202,6 +373,7 @@ def students():
         email = request.form.get("email", "").strip()
         course = request.form.get("course", "").strip()
         semester = request.form.get("semester", "").strip()
+
         course_type = valid_course_type(
             request.form.get("course_type")
         )
@@ -216,19 +388,33 @@ def students():
             flash("Please select UG or PG.", "error")
             return redirect(url_for("students"))
 
-        conn.execute("""
-            INSERT INTO students
-                (name, email, course, semester, course_type)
-            VALUES (?, ?, ?, ?, ?)
-        """, (
-            name,
-            email,
-            course,
-            semester,
-            course_type
-        ))
+        try:
+            # Generate a permanent register number
+            student_code = generate_student_code(
+                conn, course_type
+            )
 
-        conn.commit()
+            conn.execute("""
+                INSERT INTO students
+                    (name, email, course, semester,
+                     course_type, student_code)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """, (
+                name,
+                email,
+                course,
+                semester,
+                course_type,
+                student_code
+            ))
+
+            conn.commit()
+
+        except Exception:
+            conn.rollback()
+            conn.close()
+            raise
+
         conn.close()
 
         flash("Student added successfully!", "success")
@@ -236,7 +422,8 @@ def students():
 
     # -----------------------------------------------------
     # FILTER: ALL / UG / PG
-    # Derive display classification from existing subjects.
+    # Use the student's saved course_type.
+    # Do not infer it from subjects.
     # -----------------------------------------------------
     course_filter = request.args.get(
         "course_type", ""
@@ -248,56 +435,22 @@ def students():
     students_data = conn.execute("""
         SELECT
             s.*,
-            CASE
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM subjects sub
-                    WHERE LOWER(TRIM(sub.student_name)) =
-                          LOWER(TRIM(s.name))
-                      AND UPPER(TRIM(sub.course_type)) = 'UG'
-                )
-                AND EXISTS (
-                    SELECT 1
-                    FROM subjects sub
-                    WHERE LOWER(TRIM(sub.student_name)) =
-                          LOWER(TRIM(s.name))
-                      AND UPPER(TRIM(sub.course_type)) = 'PG'
-                )
-                    THEN 'UG, PG'
-
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM subjects sub
-                    WHERE LOWER(TRIM(sub.student_name)) =
-                          LOWER(TRIM(s.name))
-                      AND UPPER(TRIM(sub.course_type)) = 'PG'
-                )
-                    THEN 'PG'
-
-                WHEN EXISTS (
-                    SELECT 1
-                    FROM subjects sub
-                    WHERE LOWER(TRIM(sub.student_name)) =
-                          LOWER(TRIM(s.name))
-                      AND UPPER(TRIM(sub.course_type)) = 'UG'
-                )
-                    THEN 'UG'
-
-                ELSE COALESCE(NULLIF(UPPER(TRIM(s.course_type)), ''), 'Not set')
-            END AS display_course_type
+            UPPER(TRIM(COALESCE(s.course_type, '')))
+                AS display_course_type
         FROM students s
         ORDER BY s.id DESC
     """).fetchall()
 
     conn.close()
 
-    # Filter the list using the displayed classification.
+    # Filter by the student's own saved course type
     if course_filter:
         students_data = [
-            student for student in students_data
-            if course_filter in (
+            student
+            for student in students_data
+            if (
                 student["display_course_type"] or ""
-            ).split(", ")
+            ) == course_filter
         ]
 
     return render_template(
@@ -437,139 +590,356 @@ def edit_student(id):
         student=student
     )
 
+
+# ==========================================
+# SUBJECT MANAGEMENT
+# ==========================================
+
 @app.route("/subjects", methods=["GET", "POST"])
 def subjects():
     conn = get_db()
 
-    if request.method == "POST":
-        student_name = request.form.get("student_name", "").strip()
-        course_type = valid_course_type(request.form.get("course_type"))
-        subject_name = request.form.get("subject_name", "").strip()
-        subject_code = request.form.get("subject_code", "").strip()
+    try:
+        # ------------------------------------------
+        # ADD SUBJECT
+        # ------------------------------------------
+        if request.method == "POST":
+            student_name = request.form.get(
+                "student_name", ""
+            ).strip()
 
-        if not all([student_name, course_type, subject_name]):
-            conn.close()
-            flash("Select a student, course type and subject.", "error")
+            course_type = valid_course_type(
+                request.form.get("course_type")
+            )
+
+            subject_name = request.form.get(
+                "subject_name", ""
+            ).strip()
+
+            subject_code = request.form.get(
+                "subject_code", ""
+            ).strip()
+
+            # Support the Other subject option.
+            if subject_name == "Other":
+                subject_name = request.form.get(
+                    "custom_subject", ""
+                ).strip()
+
+            if not student_name or not course_type or not subject_name:
+                flash(
+                    "Please select a student, course type and subject.",
+                    "error"
+                )
+                return redirect(url_for("subjects"))
+
+            # Find the student using both name and course type.
+            student = conn.execute("""
+                SELECT id, name, course_type, student_code
+                FROM students
+                WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+                  AND UPPER(TRIM(COALESCE(course_type, 'UG'))) = ?
+                ORDER BY id DESC
+                LIMIT 1
+            """, (student_name, course_type)).fetchone()
+
+            if not student:
+                flash(
+                    "Student not found for the selected course type.",
+                    "error"
+                )
+                return redirect(url_for("subjects"))
+
+            # Use the actual student's name from the database.
+            student_name = student["name"]
+
+            conn.execute("""
+                INSERT INTO subjects (
+                    student_name,
+                    subject_name,
+                    subject_code,
+                    course_type
+                )
+                VALUES (?, ?, ?, ?)
+            """, (
+                student_name,
+                subject_name,
+                subject_code,
+                course_type
+            ))
+
+            conn.commit()
+
+            flash("Subject added successfully.", "success")
             return redirect(url_for("subjects"))
 
-        student = conn.execute("""
-            SELECT id FROM students
-            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
-            LIMIT 1
-        """, (student_name,)).fetchone()
-
-        if not student:
-            conn.close()
-            flash("Selected student was not found.", "error")
-            return redirect(url_for("subjects"))
-
-        conn.execute("""
-            INSERT INTO subjects
-                (student_name, subject_name, subject_code, course_type)
-            VALUES (?, ?, ?, ?)
-        """, (student_name, subject_name, subject_code, course_type))
-
-        conn.commit()
-        conn.close()
-
-        flash("Subject added successfully.", "success")
-        return redirect(url_for("subjects"))
-
-    students_data = conn.execute("""
-        SELECT * FROM students ORDER BY name
-    """).fetchall()
-
-    course_filter = valid_course_type(request.args.get("course_type"))
-
-    if course_filter:
-        subjects_data = conn.execute("""
-            SELECT * FROM subjects
-            WHERE UPPER(TRIM(COALESCE(course_type, ''))) = ?
-            ORDER BY id DESC
-        """, (course_filter,)).fetchall()
-    else:
-        subjects_data = conn.execute("""
-            SELECT * FROM subjects ORDER BY id DESC
+        # ------------------------------------------
+        # FETCH STUDENTS FOR THE ADD SUBJECT FORM
+        # ------------------------------------------
+        students_data = conn.execute("""
+            SELECT
+                id,
+                name,
+                email,
+                course,
+                semester,
+                UPPER(TRIM(COALESCE(course_type, 'UG'))) AS course_type,
+                student_code
+            FROM students
+            ORDER BY name
         """).fetchall()
 
-    conn.close()
+        # ------------------------------------------
+        # FETCH SUBJECT LIST WITH REGISTER NUMBERS
+        # ------------------------------------------
+        course_filter = valid_course_type(
+            request.args.get("course_type")
+        )
 
-    return render_template(
-        "subjects.html",
-        students=students_data,
-        subjects=subjects_data,
-        course_filter=course_filter
-    )
+        if course_filter:
+            subjects_data = conn.execute("""
+                SELECT
+                    sub.id,
+                    sub.student_name,
+                    sub.subject_name,
+                    sub.subject_code,
+                    UPPER(TRIM(COALESCE(sub.course_type, 'UG')))
+                        AS course_type,
+                    s.student_code
+                FROM subjects AS sub
+                LEFT JOIN students AS s
+                    ON LOWER(TRIM(s.name)) =
+                       LOWER(TRIM(sub.student_name))
+                   AND UPPER(TRIM(COALESCE(s.course_type, 'UG'))) =
+                       UPPER(TRIM(COALESCE(sub.course_type, 'UG')))
+                WHERE UPPER(TRIM(COALESCE(sub.course_type, 'UG'))) = ?
+                ORDER BY sub.id DESC
+            """, (course_filter,)).fetchall()
 
+        else:
+            subjects_data = conn.execute("""
+                SELECT
+                    sub.id,
+                    sub.student_name,
+                    sub.subject_name,
+                    sub.subject_code,
+                    UPPER(TRIM(COALESCE(sub.course_type, 'UG')))
+                        AS course_type,
+                    s.student_code
+                FROM subjects AS sub
+                LEFT JOIN students AS s
+                    ON LOWER(TRIM(s.name)) =
+                       LOWER(TRIM(sub.student_name))
+                   AND UPPER(TRIM(COALESCE(s.course_type, 'UG'))) =
+                       UPPER(TRIM(COALESCE(sub.course_type, 'UG')))
+                ORDER BY sub.id DESC
+            """).fetchall()
+
+        return render_template(
+            "subjects.html",
+            students=students_data,
+            subjects=subjects_data,
+            course_filter=course_filter
+        )
+
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Error loading or saving subjects")
+        flash(
+            "Unable to process the subject request. Please check the application logs.",
+            "error"
+        )
+        return redirect(url_for("subjects"))
+
+    finally:
+        conn.close()
+
+
+# ==========================================
+# DELETE SUBJECT
+# ==========================================
 
 @app.route("/delete_subject/<int:id>", methods=["GET", "POST"])
 def delete_subject(id):
     conn = get_db()
-    conn.execute("DELETE FROM subjects WHERE id=?", (id,))
-    conn.commit()
-    conn.close()
 
-    flash("Subject deleted successfully.", "success")
-    return redirect(url_for("subjects"))
+    try:
+        subject = conn.execute("""
+            SELECT id, subject_name
+            FROM subjects
+            WHERE id = ?
+        """, (id,)).fetchone()
 
+        if subject is None:
+            flash("Subject not found.", "error")
+            return redirect(url_for("subjects"))
+
+        conn.execute("""
+            DELETE FROM subjects
+            WHERE id = ?
+        """, (id,))
+
+        conn.commit()
+
+        flash("Subject deleted successfully.", "success")
+        return redirect(url_for("subjects"))
+
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Error deleting subject")
+        flash("Unable to delete the subject.", "error")
+        return redirect(url_for("subjects"))
+
+    finally:
+        conn.close()
+
+
+# ==========================================
+# EDIT SUBJECT
+# ==========================================
 
 @app.route("/edit_subject/<int:id>", methods=["GET", "POST"])
 def edit_subject(id):
     conn = get_db()
 
-    if request.method == "POST":
-        student_name = request.form.get("student_name", "").strip()
-        course_type = valid_course_type(request.form.get("course_type"))
-        subject_name = request.form.get("subject_name", "").strip()
-        subject_code = request.form.get("subject_code", "").strip()
+    try:
+        subject = conn.execute("""
+            SELECT *
+            FROM subjects
+            WHERE id = ?
+        """, (id,)).fetchone()
 
-        if not student_name or not course_type or not subject_name:
-            conn.close()
-            flash("Please fill in all required subject details.", "error")
-            return redirect(url_for("edit_subject", id=id))
+        if subject is None:
+            flash("Subject not found.", "error")
+            return redirect(url_for("subjects"))
 
-        conn.execute("""
-            UPDATE subjects
-            SET student_name=?, subject_name=?, subject_code=?, course_type=?
-            WHERE id=?
-        """, (student_name, subject_name, subject_code, course_type, id))
+        if request.method == "POST":
+            student_name = request.form.get(
+                "student_name", ""
+            ).strip()
 
-        conn.commit()
-        conn.close()
+            course_type = valid_course_type(
+                request.form.get("course_type")
+            )
 
-        flash("Subject updated successfully.", "success")
+            subject_name = request.form.get(
+                "subject_name", ""
+            ).strip()
+
+            subject_code = request.form.get(
+                "subject_code", ""
+            ).strip()
+
+            if subject_name == "Other":
+                subject_name = request.form.get(
+                    "custom_subject", ""
+                ).strip()
+
+            if not student_name or not course_type or not subject_name:
+                flash(
+                    "Please fill in all required subject details.",
+                    "error"
+                )
+                return redirect(
+                    url_for("edit_subject", id=id)
+                )
+
+            # Verify that the selected student belongs to the chosen type.
+            student = conn.execute("""
+                SELECT id, name
+                FROM students
+                WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+                  AND UPPER(TRIM(COALESCE(course_type, 'UG'))) = ?
+                ORDER BY id DESC
+                LIMIT 1
+            """, (student_name, course_type)).fetchone()
+
+            if not student:
+                flash(
+                    "Selected student was not found for that course type.",
+                    "error"
+                )
+                return redirect(
+                    url_for("edit_subject", id=id)
+                )
+
+            conn.execute("""
+                UPDATE subjects
+                SET student_name = ?,
+                    subject_name = ?,
+                    subject_code = ?,
+                    course_type = ?
+                WHERE id = ?
+            """, (
+                student["name"],
+                subject_name,
+                subject_code,
+                course_type,
+                id
+            ))
+
+            conn.commit()
+
+            flash("Subject updated successfully.", "success")
+            return redirect(url_for("subjects"))
+
+        # Students available in the edit form.
+        students_data = conn.execute("""
+            SELECT
+                id,
+                name,
+                email,
+                course,
+                semester,
+                UPPER(TRIM(COALESCE(course_type, 'UG'))) AS course_type,
+                student_code
+            FROM students
+            ORDER BY name
+        """).fetchall()
+
+        # Register number for the selected subject's student.
+        subject_with_student = conn.execute("""
+            SELECT
+                sub.*,
+                s.student_code
+            FROM subjects AS sub
+            LEFT JOIN students AS s
+                ON LOWER(TRIM(s.name)) =
+                   LOWER(TRIM(sub.student_name))
+               AND UPPER(TRIM(COALESCE(s.course_type, 'UG'))) =
+                   UPPER(TRIM(COALESCE(sub.course_type, 'UG')))
+            WHERE sub.id = ?
+        """, (id,)).fetchone()
+
+        return render_template(
+            "edit_subject.html",
+            subject=subject_with_student,
+            students=students_data
+        )
+
+    except Exception:
+        conn.rollback()
+        app.logger.exception("Error editing subject")
+        flash("Unable to process the subject edit.", "error")
         return redirect(url_for("subjects"))
 
-    subject = conn.execute(
-        "SELECT * FROM subjects WHERE id=?", (id,)
-    ).fetchone()
+    finally:
+        conn.close()
 
-    students_data = conn.execute("""
-        SELECT * FROM students ORDER BY name
-    """).fetchall()
-
-    conn.close()
-
-    if subject is None:
-        return "Subject not found", 404
-
-    return render_template(
-        "edit_subject.html",
-        subject=subject,
-        students=students_data
-    )
 
 
 # =====================================================
 # MARKS MANAGEMENT
 # =====================================================
 
+
 @app.route("/marks", methods=["GET", "POST"])
 def marks():
     conn = get_db()
 
     course_type = valid_course_type(
-        request.form.get("course_type") or request.args.get("course_type")
+        request.form.get("course_type") or
+        request.args.get("course_type")
     )
 
     if request.method == "POST":
@@ -591,15 +961,32 @@ def marks():
             flash("Enter marks between 0 and 100.", "error")
             return redirect(url_for("marks", course_type=course_type))
 
-        # Student is selected from the existing Students table.
+        # Get the selected student and their existing register number.
         student = conn.execute("""
-            SELECT id, name
+            SELECT id, name, course_type, student_code
             FROM students
             WHERE id = ?
         """, (student_id,)).fetchone()
 
-        # Subject must be an existing subject for this course type
-        # and must be assigned to the selected student.
+        if not student:
+            conn.close()
+            flash("Selected student was not found.", "error")
+            return redirect(url_for("marks", course_type=course_type))
+
+        # Check that the selected student belongs to the chosen UG/PG type.
+        student_type = (
+            (student["course_type"] or "UG").strip().upper()
+        )
+
+        if student_type != course_type:
+            conn.close()
+            flash(
+                "The selected student does not belong to this course type.",
+                "error"
+            )
+            return redirect(url_for("marks", course_type=course_type))
+
+        # Subject must belong to the selected course type and student.
         subject = conn.execute("""
             SELECT id, subject_name
             FROM subjects
@@ -607,12 +994,11 @@ def marks():
               AND UPPER(TRIM(COALESCE(course_type, ''))) = ?
               AND LOWER(TRIM(COALESCE(student_name, ''))) =
                   LOWER(TRIM(?))
-        """, (subject_id, course_type, student["name"] if student else "")).fetchone()
-
-        if not student:
-            conn.close()
-            flash("Selected student was not found.", "error")
-            return redirect(url_for("marks", course_type=course_type))
+        """, (
+            subject_id,
+            course_type,
+            student["name"]
+        )).fetchone()
 
         if not subject:
             conn.close()
@@ -622,17 +1008,24 @@ def marks():
             )
             return redirect(url_for("marks", course_type=course_type))
 
-        # Prevent duplicate marks for the same student and subject.
+        # Prevent duplicate marks for the same student, subject and course type.
         existing = conn.execute("""
-            SELECT id FROM marks
+            SELECT id
+            FROM marks
             WHERE LOWER(TRIM(student_name)) = LOWER(TRIM(?))
               AND LOWER(TRIM(subject_name)) = LOWER(TRIM(?))
-        """, (student["name"], subject["subject_name"])).fetchone()
+              AND UPPER(TRIM(COALESCE(course_type, ''))) = ?
+        """, (
+            student["name"],
+            subject["subject_name"],
+            course_type
+        )).fetchone()
 
         if existing:
             conn.close()
             flash(
-                "Marks already exist for this student and subject. Use Edit to update them.",
+                "Marks already exist for this student and subject. "
+                "Use Edit to update them.",
                 "error"
             )
             return redirect(url_for("marks", course_type=course_type))
@@ -651,10 +1044,10 @@ def marks():
 
             conn.commit()
 
-        except sqlite3.Error as error:
+        except sqlite3.Error:
             conn.rollback()
             conn.close()
-            app.logger.exception("Unable to save marks: %s", error)
+            app.logger.exception("Unable to save marks")
             flash("Marks could not be saved. Please try again.", "error")
             return redirect(url_for("marks", course_type=course_type))
 
@@ -662,18 +1055,13 @@ def marks():
         flash("Marks added successfully.", "success")
         return redirect(url_for("marks", course_type=course_type))
 
+    # Load students and subjects for the selected UG/PG type.
     if course_type:
-        # Students appear when they have a subject assigned for
-        # the selected UG/PG type, even if their course_type column
-        # was not populated correctly when they were first added.
         students_data = conn.execute("""
-            SELECT DISTINCT st.id, st.name
-            FROM students st
-            INNER JOIN subjects sub
-                ON LOWER(TRIM(st.name)) =
-                   LOWER(TRIM(sub.student_name))
-            WHERE UPPER(TRIM(COALESCE(sub.course_type, ''))) = ?
-            ORDER BY st.name
+            SELECT id, name, course_type, student_code
+            FROM students
+            WHERE UPPER(TRIM(COALESCE(course_type, 'UG'))) = ?
+            ORDER BY name
         """, (course_type,)).fetchall()
 
         subjects_data = conn.execute("""
@@ -683,14 +1071,20 @@ def marks():
             ORDER BY subject_name
         """, (course_type,)).fetchall()
 
-        # Include older marks whose course type was not saved,
-        # matching their subject to the existing subject assignments.
-        marks_data = conn.execute("""
+    else:
+        students_data = []
+        subjects_data = []
+
+    # Infer the course type for older marks that have no saved course type.
+    # Then match the mark to the student's existing register number.
+    marks_query = """
+        WITH mark_rows AS (
             SELECT
                 m.id,
                 m.student_name,
                 m.subject_name,
                 m.marks,
+                m.course_type,
                 COALESCE(
                     NULLIF(UPPER(TRIM(m.course_type)), ''),
                     (
@@ -706,32 +1100,37 @@ def marks():
                     ''
                 ) AS display_course_type
             FROM marks m
-            WHERE COALESCE(
-                NULLIF(UPPER(TRIM(m.course_type)), ''),
-                (
-                    SELECT UPPER(TRIM(s.course_type))
-                    FROM subjects s
-                    WHERE LOWER(TRIM(s.student_name)) =
-                          LOWER(TRIM(m.student_name))
-                      AND LOWER(TRIM(s.subject_name)) =
-                          LOWER(TRIM(m.subject_name))
-                    ORDER BY s.id DESC
-                    LIMIT 1
-                ),
-                ''
-            ) = ?
-            ORDER BY m.id DESC
-        """, (course_type,)).fetchall()
+        )
+        SELECT
+            mr.id,
+            mr.student_name,
+            mr.subject_name,
+            mr.marks,
+            mr.course_type,
+            mr.display_course_type,
+            st.student_code
+        FROM mark_rows mr
+        LEFT JOIN students st
+            ON LOWER(TRIM(st.name)) =
+               LOWER(TRIM(mr.student_name))
+           AND UPPER(TRIM(COALESCE(st.course_type, 'UG'))) =
+               mr.display_course_type
+    """
 
+    if course_type:
+        marks_data = conn.execute(
+            marks_query + """
+                WHERE mr.display_course_type = ?
+                ORDER BY mr.id DESC
+            """,
+            (course_type,)
+        ).fetchall()
     else:
-        students_data = []
-        subjects_data = []
-        marks_data = conn.execute("""
-            SELECT id, student_name, subject_name, marks,
-                   COALESCE(UPPER(TRIM(course_type)), '') AS display_course_type
-            FROM marks
-            ORDER BY id DESC
-        """).fetchall()
+        marks_data = conn.execute(
+            marks_query + """
+                ORDER BY mr.id DESC
+            """
+        ).fetchall()
 
     conn.close()
 
@@ -742,7 +1141,6 @@ def marks():
         marks_data=marks_data,
         course_type=course_type
     )
-
 
 @app.route("/edit_mark/<int:id>", methods=["GET", "POST"])
 def edit_mark(id):
@@ -816,6 +1214,7 @@ def delete_mark(id):
 # ATTENDANCE
 # =====================================================
 
+
 @app.route("/attendance", methods=["GET", "POST"])
 def attendance():
     conn = get_db()
@@ -828,7 +1227,7 @@ def attendance():
 
         try:
             selected_date = date.fromisoformat(date_value)
-        except ValueError:
+        except (ValueError, TypeError):
             selected_date = None
 
         if not student_name or not selected_date:
@@ -846,10 +1245,40 @@ def attendance():
             flash("Select Present or Absent.", "error")
             return redirect(url_for("attendance"))
 
+        # Confirm the student exists.
+        student = conn.execute("""
+            SELECT id, name
+            FROM students
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+            ORDER BY id DESC
+            LIMIT 1
+        """, (student_name,)).fetchone()
+
+        if not student:
+            conn.close()
+            flash("Selected student was not found.", "error")
+            return redirect(url_for("attendance"))
+
+        # Prevent duplicate attendance for the same student and date.
+        existing = conn.execute("""
+            SELECT id
+            FROM attendance
+            WHERE LOWER(TRIM(student_name)) = LOWER(TRIM(?))
+              AND date = ?
+        """, (student["name"], date_value)).fetchone()
+
+        if existing:
+            conn.close()
+            flash(
+                "Attendance for this student and date already exists.",
+                "error"
+            )
+            return redirect(url_for("attendance"))
+
         conn.execute("""
             INSERT INTO attendance (student_name, date, status)
             VALUES (?, ?, ?)
-        """, (student_name, date_value, status))
+        """, (student["name"], date_value, status))
 
         conn.commit()
         conn.close()
@@ -858,11 +1287,31 @@ def attendance():
         return redirect(url_for("attendance"))
 
     students_data = conn.execute("""
-        SELECT name FROM students ORDER BY name
+        SELECT id, name, student_code, course_type
+        FROM students
+        ORDER BY name
     """).fetchall()
 
+    # Display the student's register number instead of attendance ID.
     attendance_data = conn.execute("""
-        SELECT * FROM attendance ORDER BY id DESC
+        SELECT
+            a.id,
+            a.student_name,
+            a.date,
+            a.status,
+            COALESCE(
+                (
+                    SELECT s.student_code
+                    FROM students s
+                    WHERE LOWER(TRIM(s.name)) =
+                          LOWER(TRIM(a.student_name))
+                    ORDER BY s.id DESC
+                    LIMIT 1
+                ),
+                'Not assigned'
+            ) AS student_code
+        FROM attendance a
+        ORDER BY a.id DESC
     """).fetchall()
 
     conn.close()
@@ -878,7 +1327,12 @@ def attendance():
 @app.route("/delete_attendance/<int:id>", methods=["GET", "POST"])
 def delete_attendance(id):
     conn = get_db()
-    conn.execute("DELETE FROM attendance WHERE id=?", (id,))
+
+    conn.execute(
+        "DELETE FROM attendance WHERE id = ?",
+        (id,)
+    )
+
     conn.commit()
     conn.close()
 
@@ -891,9 +1345,11 @@ def edit_attendance(id):
     conn = get_db()
     today = date.today().isoformat()
 
-    attendance_record = conn.execute(
-        "SELECT * FROM attendance WHERE id=?", (id,)
-    ).fetchone()
+    attendance_record = conn.execute("""
+        SELECT *
+        FROM attendance
+        WHERE id = ?
+    """, (id,)).fetchone()
 
     if attendance_record is None:
         conn.close()
@@ -906,7 +1362,7 @@ def edit_attendance(id):
 
         try:
             selected_date = date.fromisoformat(date_value)
-        except ValueError:
+        except (ValueError, TypeError):
             selected_date = None
 
         if not student_name or not selected_date:
@@ -924,11 +1380,29 @@ def edit_attendance(id):
             flash("Select Present or Absent.", "error")
             return redirect(url_for("edit_attendance", id=id))
 
+        student = conn.execute("""
+            SELECT name
+            FROM students
+            WHERE LOWER(TRIM(name)) = LOWER(TRIM(?))
+            ORDER BY id DESC
+            LIMIT 1
+        """, (student_name,)).fetchone()
+
+        if not student:
+            conn.close()
+            flash("Selected student was not found.", "error")
+            return redirect(url_for("edit_attendance", id=id))
+
         conn.execute("""
             UPDATE attendance
-            SET student_name=?, date=?, status=?
-            WHERE id=?
-        """, (student_name, date_value, status, id))
+            SET student_name = ?, date = ?, status = ?
+            WHERE id = ?
+        """, (
+            student["name"],
+            date_value,
+            status,
+            id
+        ))
 
         conn.commit()
         conn.close()
@@ -937,7 +1411,9 @@ def edit_attendance(id):
         return redirect(url_for("attendance"))
 
     students_data = conn.execute("""
-        SELECT name FROM students ORDER BY name
+        SELECT id, name, student_code, course_type
+        FROM students
+        ORDER BY name
     """).fetchall()
 
     conn.close()
@@ -948,7 +1424,6 @@ def edit_attendance(id):
         students=students_data,
         today=today
     )
-
 
 # =====================================================
 # PERFORMANCE

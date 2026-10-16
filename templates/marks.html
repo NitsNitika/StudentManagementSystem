@@ -42,7 +42,6 @@
             color: #fff;
             text-decoration: none;
             font-weight: 600;
-            transition: background 0.2s;
         }
 
         .back-button:hover {
@@ -62,7 +61,7 @@
             font-size: 27px;
         }
 
-        /* Toast notification */
+        /* Toast notifications */
 
         .toast-container {
             position: fixed;
@@ -129,7 +128,6 @@
         .toast-close:hover {
             background: transparent;
             color: #111827;
-            transform: none;
         }
 
         .toast.hide {
@@ -142,6 +140,7 @@
                 opacity: 0;
                 transform: translateX(20px);
             }
+
             to {
                 opacity: 1;
                 transform: translateX(0);
@@ -270,6 +269,19 @@
             border-right: none;
         }
 
+        /* Register number badge */
+
+        .student-code {
+            display: inline-block;
+            padding: 7px 10px;
+            border-radius: 7px;
+            background: #e5efff;
+            color: #2459d3;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
         .course-badge,
         .marks-badge {
             display: inline-block;
@@ -323,7 +335,7 @@
             text-align: center;
         }
 
-        /* Custom delete confirmation modal */
+        /* Delete confirmation modal */
 
         .delete-modal-overlay {
             display: none;
@@ -422,6 +434,7 @@
                 opacity: 0;
                 transform: translateY(10px) scale(0.98);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0) scale(1);
@@ -544,7 +557,8 @@
 
                 {% for student in students %}
                     <option value="{{ student['id'] }}">
-                        {{ student['name'] }}
+                        {{ student['student_code'] or 'No register number' }}
+                        - {{ student['name'] }}
                     </option>
                 {% endfor %}
             </select>
@@ -611,7 +625,7 @@
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Register Number</th>
                         <th>Student Name</th>
                         <th>Course Type</th>
                         <th>Subject Name</th>
@@ -623,57 +637,62 @@
 
                 <tbody>
                     {% for mark in marks_data %}
-                        <tr>
-                            <td>{{ mark['id'] }}</td>
+                    <tr>
+                        <td>
+                            <span class="student-code">
+                                {{ mark['student_code'] or 'Not assigned' }}
+                            </span>
+                        </td>
 
-                            <td>{{ mark['student_name'] }}</td>
+                        <td>{{ mark['student_name'] }}</td>
 
-                            <td>
-                                {% set displayed_type = mark['display_course_type']|default(mark['course_type']|default('', true), true)|upper %}
+                        <td>
+                            {% set displayed_type =
+                                mark['display_course_type']|default('', true)|upper %}
 
-                                {% if displayed_type == 'UG' %}
-                                    <span class="course-badge">UG</span>
-                                {% elif displayed_type == 'PG' %}
-                                    <span class="course-badge pg-badge">PG</span>
-                                {% else %}
-                                    <span class="course-badge">—</span>
-                                {% endif %}
-                            </td>
+                            {% if displayed_type == 'UG' %}
+                                <span class="course-badge">UG</span>
+                            {% elif displayed_type == 'PG' %}
+                                <span class="course-badge pg-badge">PG</span>
+                            {% else %}
+                                <span class="course-badge">—</span>
+                            {% endif %}
+                        </td>
 
-                            <td>{{ mark['subject_name'] }}</td>
+                        <td>{{ mark['subject_name'] }}</td>
 
-                            <td>
-                                <span class="marks-badge">
-                                    {{ mark['marks'] }}
-                                </span>
-                            </td>
+                        <td>
+                            <span class="marks-badge">
+                                {{ mark['marks'] }}
+                            </span>
+                        </td>
 
-                            <td>
-                                <a href="{{ url_for('edit_mark', id=mark['id']) }}"
-                                   class="edit-button">
-                                    Edit
-                                </a>
-                            </td>
+                        <td>
+                            <a href="{{ url_for('edit_mark', id=mark['id']) }}"
+                               class="edit-button">
+                                Edit
+                            </a>
+                        </td>
 
-                            <td>
-                                <form method="POST"
-                                      action="{{ url_for('delete_mark', id=mark['id']) }}"
-                                      class="delete-form"
-                                      style="margin:0;">
+                        <td>
+                            <form method="POST"
+                                  action="{{ url_for('delete_mark', id=mark['id']) }}"
+                                  class="delete-form"
+                                  style="margin:0;">
 
-                                    <button type="submit"
-                                            class="delete-button">
-                                        Delete
-                                    </button>
-                                </form>
-                            </td>
-                        </tr>
+                                <button type="submit" class="delete-button">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                    </tr>
+
                     {% else %}
-                        <tr>
-                            <td colspan="7" class="empty-state">
-                                No marks found for this selection.
-                            </td>
-                        </tr>
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            No marks found for this selection.
+                        </td>
+                    </tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -681,7 +700,7 @@
 
     </div>
 
-    <!-- Custom Delete Confirmation Modal -->
+    <!-- Delete confirmation modal -->
     <div class="delete-modal-overlay"
          id="deleteModal"
          aria-hidden="true">
@@ -809,6 +828,7 @@
 
                     selectedDeleteForm = form;
                     confirmDelete.disabled = false;
+                    confirmDelete.textContent = "Delete Marks";
 
                     deleteModal.classList.add("show");
                     deleteModal.setAttribute("aria-hidden", "false");
@@ -822,6 +842,7 @@
             deleteModal.setAttribute("aria-hidden", "true");
             selectedDeleteForm = null;
             confirmDelete.disabled = false;
+            confirmDelete.textContent = "Delete Marks";
         }
 
         cancelDelete.addEventListener("click", function () {
@@ -836,7 +857,6 @@
             confirmDelete.disabled = true;
             confirmDelete.textContent = "Deleting...";
 
-            // Submit the original form to the existing Flask delete route.
             HTMLFormElement.prototype.submit.call(formToSubmit);
         });
 

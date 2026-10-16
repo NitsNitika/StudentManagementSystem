@@ -4,699 +4,729 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Student Management | Smart Student Management System</title>
+    <title>Student Management</title>
 
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
+            margin: 0;
+            padding: 24px;
+            background: #f1f5fb;
             font-family: Arial, Helvetica, sans-serif;
-            background: #f2f5fb;
-            color: #243447;
-            padding: 20px;
+            color: #263b58;
         }
 
-        .page-container {
+        .container {
             max-width: 1500px;
             margin: 0 auto;
-            background: #fff;
             padding: 30px;
+            background: #fff;
             border-radius: 20px;
-            box-shadow: 0 10px 35px rgba(25, 45, 90, 0.08);
+            box-shadow: 0 12px 35px rgba(30, 50, 80, 0.08);
         }
 
-        .back-button {
+        .back-btn,
+        .add-btn {
             display: inline-block;
-            background: #2864ed;
-            color: #fff;
-            text-decoration: none;
-            padding: 12px 20px;
+            border: none;
             border-radius: 9px;
+            background: #2d60f5;
+            color: #fff;
+            padding: 13px 20px;
+            font-size: 14px;
             font-weight: 600;
-            margin-bottom: 22px;
+            text-decoration: none;
+            cursor: pointer;
         }
 
-        .back-button:hover {
-            background: #174dcc;
+        .back-btn:hover,
+        .add-btn:hover {
+            background: #204bd0;
         }
 
         h1 {
-            color: #294794;
+            margin: 26px 0;
+            color: #294c9e;
             font-size: 32px;
-            margin-bottom: 24px;
         }
 
-        h2 {
-            font-size: 25px;
-            margin-bottom: 22px;
-            color: #26384d;
+        .flash-message {
+            padding: 13px 16px;
+            margin-bottom: 16px;
+            border-radius: 9px;
+            font-size: 14px;
+        }
+
+        .flash-message.success {
+            color: #087443;
+            background: #dcfce7;
+            border: 1px solid #bbf7d0;
+        }
+
+        .flash-message.error {
+            color: #b91c1c;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
         }
 
         .student-form {
             display: grid;
-            grid-template-columns: repeat(5, minmax(130px, 1fr));
-            gap: 12px;
-            align-items: center;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 14px;
+            margin-bottom: 22px;
         }
 
         input,
         select {
             width: 100%;
             min-width: 0;
-            padding: 14px 13px;
-            border: 1px solid #dbe2ed;
+            height: 49px;
+            padding: 0 14px;
+            border: 1px solid #dce5f1;
             border-radius: 10px;
-            font-size: 15px;
-            color: #26384d;
-            background: #fff;
+            background: white;
+            color: #25364d;
+            font-size: 14px;
             outline: none;
         }
 
         input:focus,
         select:focus {
-            border-color: #2864ed;
-            box-shadow: 0 0 0 3px rgba(40, 100, 237, 0.10);
+            border-color: #2d60f5;
+            box-shadow: 0 0 0 3px rgba(45, 96, 245, 0.1);
         }
 
-        .primary-button {
-            background: #2864ed;
-            color: white;
-            border: none;
-            border-radius: 9px;
-            padding: 14px 18px;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
+        .student-form .add-btn {
+            height: 49px;
         }
 
-        .primary-button:hover {
-            background: #174dcc;
-        }
-
-        .section-divider {
+        .divider {
             border: 0;
-            border-top: 1px solid #e6ebf2;
-            margin: 26px 0;
+            border-top: 1px solid #edf1f6;
+            margin: 24px 0 28px;
         }
 
         .list-heading {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 16px;
             margin-bottom: 22px;
         }
 
         .list-heading h2 {
             margin: 0;
+            font-size: 26px;
+            color: #293e5c;
         }
 
-        .filter-select {
-            width: 230px;
-            cursor: pointer;
+        .filter {
+            width: 245px;
         }
 
         .table-wrapper {
             width: 100%;
             overflow-x: auto;
-            border: 1px solid #e3e8f0;
-            border-radius: 8px;
+            border: 1px solid #e2e9f3;
+            border-radius: 6px;
         }
 
         table {
             width: 100%;
-            min-width: 900px;
             border-collapse: collapse;
-            text-align: center;
+            min-width: 900px;
         }
 
         thead {
-            background: #3263e9;
-            color: #fff;
+            background: #3563ed;
+            color: white;
         }
 
         th {
-            padding: 16px 12px;
-            font-size: 15px;
-            font-weight: 600;
+            padding: 15px 12px;
+            font-size: 14px;
+            font-weight: 700;
             white-space: nowrap;
         }
 
         td {
-            padding: 13px 12px;
-            border: 1px solid #e8edf4;
+            padding: 12px;
+            text-align: center;
+            border-bottom: 1px solid #e8edf5;
+            border-right: 1px solid #edf1f6;
             font-size: 14px;
         }
 
         tbody tr:nth-child(even) {
-            background: #f3f6fb;
-        }
-
-        tbody tr:nth-child(odd) {
-            background: #fff;
+            background: #f3f6fa;
         }
 
         tbody tr:hover {
             background: #eaf1ff;
         }
 
-        .course-badge {
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .register-number {
             display: inline-block;
-            background: #dceaff;
-            color: #2057bd;
-            padding: 6px 13px;
-            border-radius: 20px;
+            padding: 7px 10px;
+            border-radius: 7px;
+            background: #e4edff;
+            color: #1550d8;
             font-size: 12px;
             font-weight: 700;
             white-space: nowrap;
         }
 
-        .course-badge.pg {
-            background: #eee4ff;
-            color: #7737d1;
-        }
-
-        .course-badge.both {
-            background: #fff0d4;
-            color: #915700;
-        }
-
-        .course-badge.not-set {
-            background: #e9edf2;
-            color: #586575;
-        }
-
-        .action-button {
+        .course-badge {
             display: inline-block;
-            padding: 9px 13px;
-            border: none;
-            border-radius: 7px;
-            color: #fff;
-            font-size: 13px;
-            text-decoration: none;
-            cursor: pointer;
-            font-weight: 600;
+            min-width: 42px;
+            padding: 7px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
         }
 
-        .edit-button {
+        .course-badge.ug {
+            color: #1550d8;
+            background: #dbeafe;
+        }
+
+        .course-badge.pg {
+            color: #6d28d9;
+            background: #eee5ff;
+        }
+
+        .course-badge.unknown {
+            color: #92400e;
+            background: #fef3c7;
+        }
+
+        .action-btn {
+            display: inline-block;
+            padding: 9px 14px;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .edit-btn {
             background: #16a34a;
         }
 
-        .edit-button:hover {
-            background: #12813b;
+        .edit-btn:hover {
+            background: #15803d;
         }
 
-        /* Delete button */
-        .delete-button {
-            display: inline-block;
-            background: #ef242b;
-            color: #fff;
-            border: none;
-            border-radius: 7px;
-            padding: 9px 13px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s ease;
+        .delete-btn {
+            background: #ef2029;
         }
 
-        .delete-button:hover {
+        .delete-btn:hover {
             background: #c91820;
         }
 
-        .empty-message {
+        .empty-row {
             padding: 30px;
-            color: #68778b;
-            text-align: center;
+            color: #6b7b91;
         }
 
-        /* Flash notifications */
-        .toast-container {
+        /* Compact delete confirmation popup */
+        .modal-overlay {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 11000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            width: min(380px, calc(100% - 40px));
+            inset: 0;
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            background: rgba(24, 35, 55, 0.58);
+            backdrop-filter: blur(4px);
         }
 
-        .toast {
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .delete-modal {
+            width: 100%;
+            max-width: 430px;
+            padding: 28px;
+            border-radius: 18px;
             background: #fff;
-            border-left: 5px solid #16a34a;
-            border-radius: 10px;
-            padding: 17px;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.13);
+            text-align: center;
+            box-shadow: 0 18px 60px rgba(0, 0, 0, 0.18);
+            animation: popup 0.18s ease-out;
+        }
+
+        @keyframes popup {
+            from {
+                opacity: 0;
+                transform: scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .delete-icon {
+            display: flex;
+            width: 58px;
+            height: 58px;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            border-radius: 50%;
+            background: #fee2e2;
+            color: #ef2029;
+            font-size: 27px;
+        }
+
+        .delete-modal h2 {
+            margin: 0 0 12px;
+            font-size: 24px;
+            color: #243754;
+        }
+
+        .delete-modal p {
+            margin: 0 0 12px;
+            color: #71829c;
+            line-height: 1.6;
+            overflow-wrap: anywhere;
+        }
+
+        .warning-text {
+            color: #ef2029 !important;
+            font-size: 13px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+        }
+
+        .modal-actions button {
+            flex: 1;
+            min-height: 44px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cancel-btn {
+            border: 1px solid #dce5f1;
+            background: white;
+            color: #40516b;
+        }
+
+        .confirm-delete-btn {
+            border: none;
+            background: #ef2029;
+            color: white;
+        }
+
+        .confirm-delete-btn:hover {
+            background: #c91820;
+        }
+
+        /* Toast notification */
+        .toast {
+            position: fixed;
+            top: 18px;
+            right: 20px;
+            z-index: 2000;
             display: flex;
             align-items: center;
-            justify-content: space-between;
             gap: 12px;
+            width: min(380px, calc(100vw - 32px));
+            padding: 15px 17px;
+            border-left: 5px solid #16a34a;
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.13);
+            color: #334155;
+            font-size: 14px;
+            animation: toast-in 0.25s ease-out;
         }
 
-        .toast.error,
-        .toast.danger {
-            border-left-color: #ef242b;
+        .toast.error {
+            border-left-color: #ef2029;
         }
 
-        .toast.success {
-            border-left-color: #16a34a;
+        .toast-icon {
+            display: flex;
+            width: 27px;
+            height: 27px;
+            flex-shrink: 0;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #dcfce7;
+            color: #15803d;
+            font-weight: bold;
+        }
+
+        .toast.error .toast-icon {
+            background: #fee2e2;
+            color: #dc2626;
         }
 
         .toast-message {
-            font-size: 14px;
-            line-height: 1.5;
+            flex: 1;
         }
 
         .toast-close {
             border: none;
             background: transparent;
             color: #718096;
-            font-size: 22px;
+            font-size: 20px;
             cursor: pointer;
         }
 
-        /* Custom delete modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(36, 48, 65, 0.48);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .delete-modal {
-            background: #fff;
-            width: 100%;
-            max-width: 645px;
-            padding: 44px;
-            border-radius: 28px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
-            animation: modalAppear 0.2s ease-out;
-        }
-
-        .modal-icon {
-            width: 86px;
-            height: 86px;
-            background: #ffe2e2;
-            color: #ef242b;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 44px;
-            font-weight: bold;
-            margin-bottom: 28px;
-        }
-
-        .delete-modal h2 {
-            color: #293e5c;
-            font-size: 36px;
-            margin-bottom: 18px;
-        }
-
-        .delete-modal p {
-            color: #77869f;
-            font-size: 22px;
-            line-height: 1.6;
-            margin-bottom: 38px;
-        }
-
-        .modal-actions {
-            display: flex;
-            justify-content: flex-end;
-            align-items: center;
-            gap: 18px;
-        }
-
-        .modal-cancel,
-        .modal-confirm {
-            border: none;
-            border-radius: 16px;
-            padding: 22px 30px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background 0.2s ease;
-        }
-
-        .modal-cancel {
-            background: #edf2f7;
-            color: #34445b;
-        }
-
-        .modal-cancel:hover {
-            background: #dce4ee;
-        }
-
-        .modal-confirm {
-            background: #ef242b;
-            color: #fff;
-        }
-
-        .modal-confirm:hover {
-            background: #c91820;
-        }
-
-        @keyframes modalAppear {
+        @keyframes toast-in {
             from {
                 opacity: 0;
-                transform: translateY(10px) scale(0.98);
+                transform: translateY(-8px);
             }
-
             to {
                 opacity: 1;
-                transform: translateY(0) scale(1);
+                transform: translateY(0);
             }
         }
 
-        @media (max-width: 1000px) {
+        @media (max-width: 850px) {
+            body {
+                padding: 12px;
+            }
+
+            .container {
+                padding: 20px 14px;
+                border-radius: 14px;
+            }
+
             .student-form {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
-            }
-
-            .student-form .primary-button {
-                grid-column: 1 / -1;
-            }
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-
-            .page-container {
-                padding: 18px;
-                border-radius: 13px;
             }
 
             h1 {
                 font-size: 26px;
             }
 
+            .list-heading h2 {
+                font-size: 21px;
+            }
+        }
+
+        @media (max-width: 520px) {
             .student-form {
                 grid-template-columns: 1fr;
             }
 
-            .student-form .primary-button {
-                grid-column: auto;
+            .list-heading {
+                align-items: stretch;
+                flex-direction: column;
             }
 
-            .filter-select {
+            .filter {
                 width: 100%;
             }
 
-            .list-heading {
-                align-items: stretch;
-            }
-
             .delete-modal {
-                padding: 28px;
-                border-radius: 20px;
+                padding: 22px 18px;
             }
 
             .delete-modal h2 {
-                font-size: 28px;
-            }
-
-            .delete-modal p {
-                font-size: 17px;
+                font-size: 21px;
             }
 
             .modal-actions {
-                gap: 10px;
-            }
-
-            .modal-cancel,
-            .modal-confirm {
-                padding: 15px 18px;
-                font-size: 15px;
+                gap: 8px;
             }
         }
     </style>
 </head>
 
 <body>
+<div class="container">
 
-    <!-- Flash messages -->
-    <div class="toast-container" id="toastContainer">
-        {% with messages = get_flashed_messages(with_categories=true) %}
+    <a href="{{ url_for('dashboard') }}" class="back-btn">
+        Back to Dashboard
+    </a>
+
+    <h1>👨‍🎓 Student Management</h1>
+
+    <!-- Flask flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
             {% for category, message in messages %}
-                <div class="toast {{ category }}">
-                    <span class="toast-message">{{ message }}</span>
-                    <button
-                        type="button"
-                        class="toast-close"
-                        onclick="this.parentElement.remove()"
-                        aria-label="Close notification"
-                    >&times;</button>
+                <div
+                    class="flash-message {{ category }}"
+                    data-flash="{{ category }}"
+                    data-message="{{ message }}">
+                    {{ message }}
                 </div>
             {% endfor %}
-        {% endwith %}
+        {% endif %}
+    {% endwith %}
+
+    <!-- Add Student Form -->
+    <form method="POST"
+          action="{{ url_for('students') }}"
+          class="student-form">
+
+        <input
+            type="text"
+            name="name"
+            placeholder="Student Name"
+            required>
+
+        <input
+            type="email"
+            name="email"
+            placeholder="Email Address">
+
+        <select name="course_type" required>
+            <option value="">Select Course Type</option>
+            <option value="UG">UG</option>
+            <option value="PG">PG</option>
+        </select>
+
+        <input
+            type="text"
+            name="course"
+            placeholder="Course (BCA, MCA)"
+            required>
+
+        <select name="semester" required>
+            <option value="">Select Semester</option>
+            {% for semester in range(1, 7) %}
+                <option value="{{ semester }}">{{ semester }}</option>
+            {% endfor %}
+        </select>
+
+        <button type="submit" class="add-btn">
+            Add Student
+        </button>
+    </form>
+
+    <hr class="divider">
+
+    <!-- Student List -->
+    <div class="list-heading">
+        <h2>Student List</h2>
+
+        <select id="studentFilter" class="filter"
+                aria-label="Filter students">
+            <option value="ALL">Show All Students</option>
+            <option value="UG">Show UG Students</option>
+            <option value="PG">Show PG Students</option>
+        </select>
     </div>
 
-    <main class="page-container">
+    <div class="table-wrapper">
+        <table>
+            <thead>
+                <tr>
+                    <th>Register Number</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Semester</th>
+                    <th>Course Type</th>
+                    <th>Edit</th>
+                    <th>Delete</th>
+                </tr>
+            </thead>
 
-        <a href="{{ url_for('dashboard') }}" class="back-button">
-            Back to Dashboard
-        </a>
+            <tbody id="studentTableBody">
+            {% for student in students %}
+                {% set student_type = (student['course_type'] or '')|upper|trim %}
 
-        <h1>Student Management</h1>
+                <tr data-course-type="{{ student_type }}">
+                    <td>
+                        <span class="register-number">
+                            {{ student['student_code'] or 'Not assigned' }}
+                        </span>
+                    </td>
 
-        <!-- Add Student Form -->
-        <form
-            class="student-form"
-            action="{{ url_for('students') }}"
-            method="POST"
-        >
-            <input
-                type="text"
-                name="name"
-                placeholder="Student Name"
-                required
-            >
+                    <td>{{ student['name'] }}</td>
+                    <td>{{ student['email'] or '-' }}</td>
+                    <td>{{ student['course'] or '-' }}</td>
+                    <td>{{ student['semester'] or '-' }}</td>
 
-            <input
-                type="email"
-                name="email"
-                placeholder="Email"
-            >
+                    <td>
+                        {% if student_type == 'UG' %}
+                            <span class="course-badge ug">UG</span>
+                        {% elif student_type == 'PG' %}
+                            <span class="course-badge pg">PG</span>
+                        {% else %}
+                            <span class="course-badge unknown">Not Set</span>
+                        {% endif %}
+                    </td>
 
-            <input
-                type="text"
-                name="course"
-                placeholder="Course (e.g. BCA, MCA)"
-            >
+                    <td>
+                        <a
+                            href="{{ url_for('edit_student', id=student['id']) }}"
+                            class="action-btn edit-btn">
+                            Edit
+                        </a>
+                    </td>
 
-            <input
-                type="text"
-                name="semester"
-                placeholder="Semester"
-            >
+                    <td>
+                        <button
+                            type="button"
+                            class="action-btn delete-btn"
+                            data-student-id="{{ student['id'] }}"
+                            data-student-name="{{ student['name']|e }}"
+                            onclick="openDeleteModal(this)">
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            {% else %}
+                <tr>
+                    <td colspan="8" class="empty-row">
+                        No students found. Add your first student above.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
 
-            <select name="course_type" required>
-                <option value="">Select UG/PG</option>
-                <option value="UG">UG</option>
-                <option value="PG">PG</option>
-            </select>
+<!-- Compact Delete Confirmation -->
+<div class="modal-overlay" id="deleteModal"
+     role="dialog" aria-modal="true"
+     aria-labelledby="deleteTitle">
 
-            <button type="submit" class="primary-button">
-                + Add Student
+    <div class="delete-modal">
+        <div class="delete-icon">▤</div>
+
+        <h2 id="deleteTitle">Delete Student?</h2>
+
+        <p>
+            Are you sure you want to delete
+            <strong id="deleteStudentName">this student</strong>?
+        </p>
+
+        <p class="warning-text">
+            This action cannot be undone.
+        </p>
+
+        <div class="modal-actions">
+            <button type="button"
+                    class="cancel-btn"
+                    onclick="closeDeleteModal()">
+                Cancel
             </button>
-        </form>
 
-        <hr class="section-divider">
-
-        <!-- Student List -->
-        <div class="list-heading">
-            <h2>Student List</h2>
-
-            <select
-                class="filter-select"
-                aria-label="Filter students by course type"
-                onchange="window.location.href='{{ url_for('students') }}' + (this.value ? '?course_type=' + this.value : '')"
-            >
-                <option value=""
-                    {% if not course_filter %}selected{% endif %}>
-                    Show All Students
-                </option>
-
-                <option value="UG"
-                    {% if course_filter == 'UG' %}selected{% endif %}>
-                    Show UG Students
-                </option>
-
-                <option value="PG"
-                    {% if course_filter == 'PG' %}selected{% endif %}>
-                    Show PG Students
-                </option>
-            </select>
-        </div>
-
-        <div class="table-wrapper">
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Course</th>
-                        <th>Semester</th>
-                        <th>Course Type</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-                    {% for student in students %}
-                        <tr>
-                            <td>{{ student['id'] }}</td>
-                            <td>{{ student['name'] }}</td>
-                            <td>{{ student['email'] or '-' }}</td>
-                            <td>{{ student['course'] or '-' }}</td>
-                            <td>{{ student['semester'] or '-' }}</td>
-
-                            <td>
-                                {% set student_type = student['display_course_type'] %}
-
-                                {% if student_type == 'UG' %}
-                                    <span class="course-badge">UG</span>
-                                {% elif student_type == 'PG' %}
-                                    <span class="course-badge pg">PG</span>
-                                {% elif student_type == 'UG, PG' %}
-                                    <span class="course-badge both">UG, PG</span>
-                                {% else %}
-                                    <span class="course-badge not-set">
-                                        {{ student_type or 'Not set' }}
-                                    </span>
-                                {% endif %}
-                            </td>
-
-                            <td>
-                                <a
-                                    href="{{ url_for('edit_student', id=student['id']) }}"
-                                    class="action-button edit-button"
-                                >
-                                    Edit
-                                </a>
-                            </td>
-
-                            <!-- Opens the custom modal instead of browser confirm -->
-                            <td>
-                                <button
-                                    type="button"
-                                    class="delete-button"
-                                    onclick="openDeleteModal('{{ url_for('delete_student', id=student['id']) }}')"
-                                >
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    {% else %}
-                        <tr>
-                            <td colspan="8" class="empty-message">
-                                No students found for this selection.
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-
-    </main>
-
-    <!-- Custom Delete Student Confirmation Modal -->
-    <div
-        class="modal-overlay"
-        id="deleteStudentModal"
-        aria-hidden="true"
-    >
-        <div
-            class="delete-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="deleteStudentTitle"
-            aria-describedby="deleteStudentDescription"
-        >
-            <div class="modal-icon">!</div>
-
-            <h2 id="deleteStudentTitle">Delete Student?</h2>
-
-            <p id="deleteStudentDescription">
-                Are you sure you want to delete this student?
-                This action cannot be undone.
-            </p>
-
-            <div class="modal-actions">
-                <button
-                    type="button"
-                    class="modal-cancel"
-                    onclick="closeDeleteModal()"
-                >
-                    Cancel
+            <form id="deleteStudentForm" method="POST">
+                <button type="submit" class="confirm-delete-btn"
+                        style="width:100%; padding:0 18px; min-height:44px;">
+                    Delete Student
                 </button>
-
-                <form id="deleteStudentForm" method="POST">
-                    <button type="submit" class="modal-confirm">
-                        Delete Student
-                    </button>
-                </form>
-            </div>
+            </form>
         </div>
     </div>
+</div>
 
-    <script>
-        const deleteModal = document.getElementById("deleteStudentModal");
-        const deleteForm = document.getElementById("deleteStudentForm");
+<script>
+    const filter = document.getElementById("studentFilter");
+    const tableBody = document.getElementById("studentTableBody");
+    const deleteModal = document.getElementById("deleteModal");
+    const deleteStudentForm = document.getElementById("deleteStudentForm");
+    const deleteStudentName = document.getElementById("deleteStudentName");
 
-        function openDeleteModal(deleteUrl) {
-            deleteForm.action = deleteUrl;
-            deleteModal.classList.add("active");
-            deleteModal.setAttribute("aria-hidden", "false");
+    // Filter without changing any saved student data.
+    filter.addEventListener("change", function () {
+        const selectedType = this.value;
+        const rows = tableBody.querySelectorAll("tr[data-course-type]");
+
+        rows.forEach(function (row) {
+            const rowType = row.dataset.courseType;
+            row.style.display =
+                selectedType === "ALL" || rowType === selectedType
+                    ? ""
+                    : "none";
+        });
+    });
+
+    // Open the compact delete confirmation.
+    function openDeleteModal(button) {
+        const studentId = button.dataset.studentId;
+        const studentName = button.dataset.studentName;
+
+        deleteStudentName.textContent = studentName;
+        deleteStudentForm.action = "/delete/" + encodeURIComponent(studentId);
+
+        deleteModal.classList.add("show");
+    }
+
+    function closeDeleteModal() {
+        deleteModal.classList.remove("show");
+    }
+
+    // Close when clicking outside the popup.
+    deleteModal.addEventListener("click", function (event) {
+        if (event.target === deleteModal) {
+            closeDeleteModal();
         }
+    });
 
-        function closeDeleteModal() {
-            deleteModal.classList.remove("active");
-            deleteModal.setAttribute("aria-hidden", "true");
+    // Close with Escape.
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+            closeDeleteModal();
         }
+    });
 
-        // Close when clicking outside the modal.
-        deleteModal.addEventListener("click", function (event) {
-            if (event.target === deleteModal) {
-                closeDeleteModal();
-            }
-        });
+    // Display a small toast for Flask flash messages.
+    document.querySelectorAll(".flash-message[data-flash]").forEach(function (messageElement) {
+        const category = messageElement.dataset.flash;
+        const message = messageElement.dataset.message;
 
-        // Close when pressing Escape.
-        document.addEventListener("keydown", function (event) {
-            if (event.key === "Escape" && deleteModal.classList.contains("active")) {
-                closeDeleteModal();
-            }
-        });
+        const toast = document.createElement("div");
+        toast.className = "toast" + (category === "error" ? " error" : "");
 
-        // Automatically hide flash notifications.
-        document.querySelectorAll(".toast").forEach(function (toast) {
-            setTimeout(function () {
-                if (toast && toast.parentElement) {
-                    toast.remove();
-                }
-            }, 4000);
-        });
-    </script>
+        const icon = document.createElement("span");
+        icon.className = "toast-icon";
+        icon.textContent = category === "error" ? "!" : "✓";
+
+        const text = document.createElement("span");
+        text.className = "toast-message";
+        text.textContent = message;
+
+        const close = document.createElement("button");
+        close.className = "toast-close";
+        close.type = "button";
+        close.textContent = "×";
+        close.setAttribute("aria-label", "Close notification");
+        close.onclick = function () {
+            toast.remove();
+        };
+
+        toast.append(icon, text, close);
+        document.body.appendChild(toast);
+        messageElement.remove();
+
+        setTimeout(function () {
+            toast.remove();
+        }, 4000);
+    });
+</script>
 
 </body>
 </html>

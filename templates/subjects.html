@@ -23,24 +23,28 @@
             max-width: 1600px;
             margin: 0 auto;
             padding: 30px;
-            background: #ffffff;
+            background: #fff;
             border-radius: 18px;
-            box-shadow: 0 5px 24px rgba(26, 43, 77, 0.10);
+            box-shadow: 0 5px 24px rgba(26, 43, 77, .10);
+        }
+
+        .back-btn, .add-btn {
+            display: inline-block;
+            padding: 13px 18px;
+            border: 0;
+            border-radius: 9px;
+            background: #2864ed;
+            color: #fff;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .back-btn {
-            display: inline-block;
-            padding: 13px 18px;
             margin-bottom: 24px;
-            border-radius: 9px;
-            background: #2864ed;
-            color: #ffffff;
-            font-weight: 700;
-            text-decoration: none;
         }
 
-        .back-btn:hover,
-        .add-btn:hover {
+        .back-btn:hover, .add-btn:hover {
             background: #174fd0;
         }
 
@@ -52,44 +56,34 @@
 
         .subject-form {
             display: grid;
-            grid-template-columns:
-                repeat(4, minmax(150px, 1fr))
-                minmax(170px, 1.05fr);
+            grid-template-columns: repeat(4, minmax(130px, 1fr)) minmax(150px, 1.05fr);
             gap: 14px;
             align-items: center;
             padding-bottom: 26px;
             border-bottom: 1px solid #e5eaf2;
         }
 
-        select,
-        input {
+        select, input {
             width: 100%;
             min-width: 0;
             height: 53px;
             padding: 0 15px;
             border: 1px solid #d7dce5;
             border-radius: 10px;
-            background: #ffffff;
+            background: #fff;
             color: #111827;
             font-size: 16px;
             outline: none;
         }
 
-        select:focus,
-        input:focus {
+        select:focus, input:focus {
             border-color: #2864ed;
-            box-shadow: 0 0 0 3px rgba(40, 100, 237, 0.12);
+            box-shadow: 0 0 0 3px rgba(40, 100, 237, .12);
         }
 
         .add-btn {
             height: 53px;
-            border: none;
-            border-radius: 10px;
-            background: #2864ed;
-            color: #ffffff;
             font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
         }
 
         .list-heading {
@@ -97,7 +91,7 @@
             justify-content: space-between;
             align-items: center;
             gap: 20px;
-            margin: 42px 0 50px;
+            margin: 42px 0 45px;
         }
 
         .list-heading h2 {
@@ -126,7 +120,7 @@
 
         thead {
             background: #3264e9;
-            color: #ffffff;
+            color: white;
         }
 
         th {
@@ -139,7 +133,7 @@
             padding: 13px 12px;
             border: 1px solid #e6eaf0;
             color: #172b4d;
-            font-size: 17px;
+            font-size: 16px;
         }
 
         tbody tr:nth-child(even) {
@@ -148,6 +142,17 @@
 
         tbody tr:hover {
             background: #edf3ff;
+        }
+
+        .student-code {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 7px;
+            background: #e5edff;
+            color: #2458d3;
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
         }
 
         .course-badge {
@@ -172,9 +177,9 @@
         .action-btn {
             display: inline-block;
             padding: 9px 15px;
-            border: none;
+            border: 0;
             border-radius: 7px;
-            color: #ffffff;
+            color: #fff;
             text-decoration: none;
             font-size: 14px;
             cursor: pointer;
@@ -201,10 +206,7 @@
             color: #64748b;
         }
 
-        /* ===============================
-           SUCCESS AND ERROR NOTIFICATIONS
-        =============================== */
-
+        /* Popup notifications */
         .toast-container {
             position: fixed;
             top: 22px;
@@ -222,12 +224,12 @@
             gap: 12px;
             padding: 16px 18px;
             border-radius: 12px;
-            background: #ffffff;
+            background: #fff;
             color: #1f2937;
-            box-shadow: 0 10px 35px rgba(15, 23, 42, 0.20);
+            box-shadow: 0 10px 35px rgba(15, 23, 42, .20);
             border-left: 5px solid #16a34a;
             font-size: 15px;
-            animation: toastIn 0.3s ease both;
+            animation: toastIn .3s ease both;
         }
 
         .toast.error {
@@ -258,8 +260,7 @@
         }
 
         .toast-close {
-            padding: 0 3px;
-            border: none;
+            border: 0;
             background: transparent;
             color: #64748b;
             font-size: 24px;
@@ -267,31 +268,19 @@
         }
 
         .toast.hide {
-            animation: toastOut 0.3s ease forwards;
+            animation: toastOut .3s ease forwards;
         }
 
         @keyframes toastIn {
-            from {
-                opacity: 0;
-                transform: translateX(25px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(25px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes toastOut {
-            to {
-                opacity: 0;
-                transform: translateX(25px);
-            }
+            to { opacity: 0; transform: translateX(25px); }
         }
 
-        /* ===============================
-           PROFESSIONAL DELETE CONFIRMATION
-        =============================== */
-
+        /* Compact delete confirmation */
         .delete-modal {
             display: none;
             position: fixed;
@@ -299,9 +288,9 @@
             z-index: 100000;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            background: rgba(15, 23, 42, 0.58);
-            backdrop-filter: blur(5px);
+            padding: 16px;
+            background: rgba(15, 23, 42, .58);
+            backdrop-filter: blur(4px);
         }
 
         .delete-modal.show {
@@ -311,33 +300,25 @@
         .delete-modal-content {
             width: 100%;
             max-width: 430px;
-            padding: 32px;
+            padding: 28px;
             border-radius: 18px;
-            background: #ffffff;
+            background: #fff;
             text-align: center;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
-            animation: modalAppear 0.22s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .22);
+            animation: modalAppear .22s ease-out;
         }
 
         .delete-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 72px;
-            height: 72px;
-            margin: 0 auto 20px;
+            width: 62px;
+            height: 62px;
+            margin: 0 auto 16px;
             border-radius: 50%;
             background: #fee2e2;
-        }
-
-        .delete-icon svg {
-            width: 34px;
-            height: 34px;
-            stroke: #dc2626;
-            stroke-width: 2;
-            fill: none;
-            stroke-linecap: round;
-            stroke-linejoin: round;
+            color: #dc2626;
+            font-size: 30px;
         }
 
         .delete-modal-content h2 {
@@ -358,71 +339,45 @@
             color: #334155;
         }
 
-        .delete-modal-content .delete-warning {
-            margin-top: 12px;
-            color: #dc2626;
-            font-size: 13px;
+        .delete-warning {
+            color: #dc2626 !important;
         }
 
         .delete-modal-actions {
             display: flex;
             gap: 12px;
-            margin-top: 28px;
+            margin-top: 24px;
         }
 
         .delete-modal-actions button {
-            display: flex;
             flex: 1;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
             min-height: 46px;
             padding: 11px 14px;
             border-radius: 9px;
             font-size: 14px;
             font-weight: 700;
             cursor: pointer;
-            transition: background 0.2s, transform 0.2s;
-        }
-
-        .delete-modal-actions button:active {
-            transform: scale(0.98);
         }
 
         .cancel-delete {
             border: 1px solid #dbe2ea;
-            background: #ffffff;
+            background: #fff;
             color: #334155;
-        }
-
-        .cancel-delete:hover {
-            background: #f1f5f9;
         }
 
         .confirm-delete {
             border: 1px solid #dc2626;
             background: #dc2626;
-            color: #ffffff;
+            color: #fff;
         }
 
         .confirm-delete:hover {
             background: #b91c1c;
         }
 
-        .confirm-delete:disabled {
-            opacity: 0.65;
-            cursor: wait;
-        }
-
         @keyframes modalAppear {
-            from {
-                opacity: 0;
-                transform: translateY(12px) scale(0.97);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(10px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         @media (max-width: 1050px) {
@@ -432,10 +387,6 @@
 
             .add-btn {
                 grid-column: span 2;
-            }
-
-            .list-heading {
-                margin-bottom: 28px;
             }
         }
 
@@ -477,7 +428,7 @@
             }
 
             .delete-modal-content {
-                padding: 25px 20px;
+                padding: 24px 18px;
             }
 
             .delete-modal-actions {
@@ -489,7 +440,7 @@
 
 <body>
 
-    <!-- Flask success/error popup messages -->
+    <!-- Flask popup messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
         <div class="toast-container" aria-live="polite">
@@ -501,13 +452,10 @@
 
                 <span class="toast-message">{{ message }}</span>
 
-                <button
-                    type="button"
-                    class="toast-close"
-                    aria-label="Close notification"
-                    onclick="this.closest('.toast').remove()">
-                    ×
-                </button>
+                <button type="button"
+                        class="toast-close"
+                        aria-label="Close notification"
+                        onclick="this.closest('.toast').remove()">×</button>
             </div>
             {% endfor %}
         </div>
@@ -523,17 +471,21 @@
         <h1>📚 Subject Management</h1>
 
         <!-- ADD SUBJECT FORM -->
-        <form
-            class="subject-form"
-            method="POST"
-            action="{{ url_for('subjects') }}">
+        <form class="subject-form"
+              method="POST"
+              action="{{ url_for('subjects') }}">
 
             <select name="student_name" id="studentName" required>
                 <option value="">Select Student</option>
 
                 {% for student in students %}
-                <option value="{{ student['name'] }}">
+                <option
+                    value="{{ student['name'] }}"
+                    data-course-type="{{ (student['course_type'] or 'UG')|upper }}">
                     {{ student['name'] }}
+                    {% if student['student_code'] %}
+                        ({{ student['student_code'] }})
+                    {% endif %}
                 </option>
                 {% endfor %}
             </select>
@@ -544,23 +496,24 @@
                 <option value="PG">PG</option>
             </select>
 
-            <select
-                name="subject_name"
-                id="subjectName"
-                required
-                disabled>
+            <select name="subject_name" id="subjectName" required>
                 <option value="">Select Subject</option>
             </select>
 
-            <input
-                type="text"
-                name="subject_code"
-                placeholder="Subject Code"
-                maxlength="30"
-                required>
+            <input type="text"
+                   name="custom_subject"
+                   id="customSubject"
+                   placeholder="Enter Subject Name"
+                   style="display:none;">
+
+            <input type="text"
+                   name="subject_code"
+                   placeholder="Subject Code"
+                   maxlength="30"
+                   required>
 
             <button type="submit" class="add-btn">
-                Add Subject
+                 Add Subject
             </button>
         </form>
 
@@ -570,10 +523,9 @@
             <div class="list-heading">
                 <h2>Subject List</h2>
 
-                <select
-                    id="listFilter"
-                    class="filter-select"
-                    aria-label="Filter subjects">
+                <select id="listFilter"
+                        class="filter-select"
+                        aria-label="Filter subjects">
                     <option value="ALL">Show All Subjects</option>
                     <option value="UG">Show UG Subjects</option>
                     <option value="PG">Show PG Subjects</option>
@@ -584,7 +536,7 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Register Number</th>
                             <th>Student Name</th>
                             <th>Course Type</th>
                             <th>Subject Name</th>
@@ -595,45 +547,43 @@
                     </thead>
 
                     <tbody id="subjectTableBody">
-
                         {% for subject in subjects %}
-                        <tr data-course="{{ subject['course_type'] or '' }}">
+                        <tr data-course="{{ (subject['course_type'] or '')|upper }}">
 
-                            <td>{{ subject['id'] }}</td>
+                            <td>
+                                <span class="student-code">
+                                    {{ subject['student_code'] or 'Not assigned' }}
+                                </span>
+                            </td>
 
                             <td>{{ subject['student_name'] }}</td>
 
                             <td>
-                                <span class="course-badge {{ 'pg' if subject['course_type'] == 'PG' else 'ug' }}">
-                                    {{ subject['course_type'] or 'UG' }}
+                                <span class="course-badge {{ 'pg' if (subject['course_type'] or '')|upper == 'PG' else 'ug' }}">
+                                    {{ (subject['course_type'] or 'UG')|upper }}
                                 </span>
                             </td>
 
                             <td>{{ subject['subject_name'] }}</td>
-
                             <td>{{ subject['subject_code'] }}</td>
 
                             <td>
-                                <a
-                                    class="action-btn edit-btn"
-                                    href="{{ url_for('edit_subject', id=subject['id']) }}">
+                                <a class="action-btn edit-btn"
+                                   href="{{ url_for('edit_subject', id=subject['id']) }}">
                                     Edit
                                 </a>
                             </td>
 
                             <td>
-                                <button
-                                    type="button"
-                                    class="action-btn delete-btn"
-                                    data-url="{{ url_for('delete_subject', id=subject['id']) }}"
-                                    data-name="{{ subject['subject_name'] }}"
-                                    onclick="openDeleteModal(this.dataset.url, this.dataset.name)">
+                                <button type="button"
+                                        class="action-btn delete-btn"
+                                        data-url="{{ url_for('delete_subject', id=subject['id']) }}"
+                                        data-name="{{ subject['subject_name'] }}"
+                                        onclick="openDeleteModal(this.dataset.url, this.dataset.name)">
                                     Delete
                                 </button>
                             </td>
-
                         </tr>
-
                         {% else %}
                         <tr>
                             <td colspan="7" class="empty-row">
@@ -641,68 +591,49 @@
                             </td>
                         </tr>
                         {% endfor %}
-
                     </tbody>
                 </table>
             </div>
         </section>
     </main>
 
-    <!-- PROFESSIONAL DELETE MODAL -->
-    <div
-        id="deleteModal"
-        class="delete-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="deleteModalTitle"
-        aria-describedby="deleteModalDescription">
+    <!-- DELETE CONFIRMATION MODAL -->
+    <div id="deleteModal"
+         class="delete-modal"
+         role="dialog"
+         aria-modal="true"
+         aria-labelledby="deleteModalTitle">
 
         <div class="delete-modal-content">
-
-            <div class="delete-icon">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M3 6h18"></path>
-                    <path d="M8 6V4h8v2"></path>
-                    <path d="M19 6l-1 14H6L5 6"></path>
-                    <path d="M10 11v5"></path>
-                    <path d="M14 11v5"></path>
-                </svg>
-            </div>
+            <div class="delete-icon">▤</div>
 
             <h2 id="deleteModalTitle">Delete Subject?</h2>
 
-            <p id="deleteModalDescription">
+            <p>
                 Are you sure you want to delete
                 <strong id="deleteSubjectName">this subject</strong>?
             </p>
 
-            <p class="delete-warning">
-                This action cannot be undone.
-            </p>
+            <p class="delete-warning">This action cannot be undone.</p>
 
             <div class="delete-modal-actions">
-
-                <button
-                    type="button"
-                    class="cancel-delete"
-                    id="cancelDeleteButton"
-                    onclick="closeDeleteModal()">
+                <button type="button"
+                        class="cancel-delete"
+                        onclick="closeDeleteModal()">
                     Cancel
                 </button>
 
-                <button
-                    type="button"
-                    class="confirm-delete"
-                    id="confirmDeleteButton">
+                <button type="button"
+                        class="confirm-delete"
+                        id="confirmDeleteButton">
                     Delete Subject
                 </button>
-
             </div>
         </div>
     </div>
 
     <script>
-        // UG and PG subject dropdown options
+        // Subjects available for each course type.
         const subjectsByCourse = {
             UG: [
                 "Machine Learning",
@@ -716,69 +647,99 @@
                 "Advanced Java Programming",
                 "Data File System",
                 "Python Lab",
-                "Advanced Operating System"
+                "Advanced Operating System",
+                "Python Lab"
             ]
         };
 
-        const courseTypeSelect =
-            document.getElementById("courseType");
+        const studentSelect = document.getElementById("studentName");
+        const courseTypeSelect = document.getElementById("courseType");
+        const subjectSelect = document.getElementById("subjectName");
+        const customSubject = document.getElementById("customSubject");
+        const listFilter = document.getElementById("listFilter");
 
-        const subjectNameSelect =
-            document.getElementById("subjectName");
+        // Fill the subject dropdown according to UG or PG.
+        function updateSubjects() {
+            const courseType = courseTypeSelect.value;
 
-        const listFilter =
-            document.getElementById("listFilter");
-
-        // Populate subject dropdown based on course
-        courseTypeSelect.addEventListener("change", function () {
-            const courseType = this.value;
-
-            subjectNameSelect.innerHTML =
+            subjectSelect.innerHTML =
                 '<option value="">Select Subject</option>';
 
-            if (!courseType || !subjectsByCourse[courseType]) {
-                subjectNameSelect.disabled = true;
-                return;
-            }
+            customSubject.style.display = "none";
+            customSubject.required = false;
+            customSubject.value = "";
 
-            subjectsByCourse[courseType].forEach(function (name) {
+            subjectSelect.style.display = "block";
+            subjectSelect.required = true;
+
+            const availableSubjects = subjectsByCourse[courseType] || [];
+
+            availableSubjects.forEach(function(subject) {
                 const option = document.createElement("option");
-                option.value = name;
-                option.textContent = name;
-
-                subjectNameSelect.appendChild(option);
+                option.value = subject;
+                option.textContent = subject;
+                subjectSelect.appendChild(option);
             });
 
-            subjectNameSelect.disabled = false;
+            const otherOption = document.createElement("option");
+            otherOption.value = "Other";
+            otherOption.textContent = "Other";
+            subjectSelect.appendChild(otherOption);
+        }
+
+        // Selecting a student automatically selects that student's course type.
+        studentSelect.addEventListener("change", function() {
+            const selectedOption =
+                studentSelect.options[studentSelect.selectedIndex];
+
+            const studentType = selectedOption.dataset.courseType;
+
+            if (studentType === "UG" || studentType === "PG") {
+                courseTypeSelect.value = studentType;
+                updateSubjects();
+            } else {
+                courseTypeSelect.value = "";
+                updateSubjects();
+            }
         });
 
-        // Filter subject table by UG or PG
-        listFilter.addEventListener("change", function () {
-            const selectedCourse = this.value;
+        courseTypeSelect.addEventListener("change", updateSubjects);
 
+        // Selecting Other reveals a text input.
+        subjectSelect.addEventListener("change", function() {
+            if (subjectSelect.value === "Other") {
+                subjectSelect.style.display = "none";
+                subjectSelect.required = false;
+
+                customSubject.style.display = "block";
+                customSubject.required = true;
+                customSubject.focus();
+            } else {
+                customSubject.style.display = "none";
+                customSubject.required = false;
+            }
+        });
+
+        // Filter the displayed subject rows by course type.
+        listFilter.addEventListener("change", function() {
+            const selectedCourse = this.value;
             const rows = document.querySelectorAll(
                 "#subjectTableBody tr[data-course]"
             );
 
             let visibleCount = 0;
 
-            rows.forEach(function (row) {
-                const course =
-                    (row.dataset.course || "").toUpperCase();
+            rows.forEach(function(row) {
+                const course = (row.dataset.course || "").toUpperCase();
+                const show = selectedCourse === "ALL" ||
+                             course === selectedCourse;
 
-                const visible =
-                    selectedCourse === "ALL" ||
-                    course === selectedCourse;
+                row.hidden = !show;
 
-                row.hidden = !visible;
-
-                if (visible) {
-                    visibleCount++;
-                }
+                if (show) visibleCount++;
             });
 
-            let emptyRow =
-                document.getElementById("filteredEmptyRow");
+            let emptyRow = document.getElementById("filteredEmptyRow");
 
             if (visibleCount === 0 && rows.length > 0) {
                 if (!emptyRow) {
@@ -788,13 +749,10 @@
                     const cell = document.createElement("td");
                     cell.colSpan = 7;
                     cell.className = "empty-row";
-                    cell.textContent =
-                        "No subjects found for this filter.";
+                    cell.textContent = "No subjects found for this filter.";
 
                     emptyRow.appendChild(cell);
-
-                    document
-                        .getElementById("subjectTableBody")
+                    document.getElementById("subjectTableBody")
                         .appendChild(emptyRow);
                 }
             } else if (emptyRow) {
@@ -802,33 +760,19 @@
             }
         });
 
-        // DELETE CONFIRMATION MODAL
-        const deleteModal =
-            document.getElementById("deleteModal");
-
-        const deleteSubjectName =
-            document.getElementById("deleteSubjectName");
-
-        const confirmDeleteButton =
-            document.getElementById("confirmDeleteButton");
-
-        const cancelDeleteButton =
-            document.getElementById("cancelDeleteButton");
+        // Delete confirmation.
+        const deleteModal = document.getElementById("deleteModal");
+        const deleteSubjectName = document.getElementById("deleteSubjectName");
+        const confirmDeleteButton = document.getElementById("confirmDeleteButton");
 
         let subjectDeleteUrl = "";
 
         function openDeleteModal(url, subjectName) {
             subjectDeleteUrl = url;
-
-            deleteSubjectName.textContent =
-                subjectName || "this subject";
-
+            deleteSubjectName.textContent = subjectName || "this subject";
             confirmDeleteButton.disabled = false;
             confirmDeleteButton.textContent = "Delete Subject";
-
             deleteModal.classList.add("show");
-
-            cancelDeleteButton.focus();
         }
 
         function closeDeleteModal() {
@@ -836,49 +780,40 @@
             subjectDeleteUrl = "";
         }
 
-        // Delete only after confirmation
-        confirmDeleteButton.addEventListener("click", function () {
-            if (!subjectDeleteUrl) {
-                return;
-            }
+        confirmDeleteButton.addEventListener("click", function() {
+            if (!subjectDeleteUrl) return;
 
             confirmDeleteButton.disabled = true;
             confirmDeleteButton.textContent = "Deleting...";
-
             window.location.href = subjectDeleteUrl;
         });
 
-        // Close modal when clicking outside it
-        deleteModal.addEventListener("click", function (event) {
-            if (event.target === deleteModal) {
+        deleteModal.addEventListener("click", function(event) {
+            if (event.target === deleteModal) closeDeleteModal();
+        });
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape" &&
+                deleteModal.classList.contains("show")) {
                 closeDeleteModal();
             }
         });
 
-        // Close modal with Escape key
-        document.addEventListener("keydown", function (event) {
-            if (
-                event.key === "Escape" &&
-                deleteModal.classList.contains("show")
-            ) {
-                closeDeleteModal();
-            }
-        });
-
-        // Automatically hide success/error notifications
-        document.querySelectorAll(".toast").forEach(function (toast) {
-            window.setTimeout(function () {
-                if (!toast.isConnected) {
-                    return;
-                }
+        // Automatically hide popup notifications.
+        document.querySelectorAll(".toast").forEach(function(toast) {
+            window.setTimeout(function() {
+                if (!toast.isConnected) return;
 
                 toast.classList.add("hide");
 
-                window.setTimeout(function () {
+                window.setTimeout(function() {
                     toast.remove();
                 }, 300);
             }, 3500);
         });
+
+        // Initial dropdown setup.
+        updateSubjects();
     </script>
 
 </body>

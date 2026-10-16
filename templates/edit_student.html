@@ -9,344 +9,302 @@
     <style>
         * {
             box-sizing: border-box;
-            margin: 0;
-            padding: 0;
         }
 
         body {
-            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 28px 20px;
+            font-family: Arial, Helvetica, sans-serif;
             background: #f2f5fb;
-            color: #263b59;
-            padding: 28px;
+            color: #26364d;
         }
 
         .container {
             width: 100%;
-            max-width: 1800px;
+            max-width: 1425px;
             margin: 0 auto;
-            padding: 40px 48px;
-            background: #fff;
-            border-radius: 22px;
-            box-shadow: 0 8px 28px rgba(30, 50, 85, 0.08);
+            padding: 32px 38px;
+            background: #ffffff;
+            border-radius: 20px;
+            box-shadow: 0 12px 35px rgba(30, 50, 80, 0.08);
         }
 
-        .back-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 13px 23px;
-            margin-bottom: 30px;
+        .back-btn {
+            display: inline-block;
+            padding: 12px 19px;
+            margin-bottom: 28px;
             border-radius: 9px;
-            background: #2864f0;
-            color: #fff;
+            background: #2962f5;
+            color: #ffffff;
             text-decoration: none;
-            font-size: 15px;
-            font-weight: 600;
-            transition: background 0.2s, transform 0.2s;
+            font-size: 14px;
+            font-weight: 700;
+            transition: background 0.2s;
         }
 
-        .back-button:hover {
-            background: #174fd0;
-            transform: translateY(-1px);
+        .back-btn:hover {
+            background: #174bd0;
         }
 
         h1 {
-            color: #29499a;
+            margin: 0 0 26px;
+            color: #294b9b;
             font-size: 40px;
             font-weight: 700;
-            margin-bottom: 30px;
-            letter-spacing: -0.5px;
         }
 
-        .form-grid {
+        .edit-form {
             display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(190px, 1.1fr);
+            grid-template-columns: repeat(4, minmax(0, 1fr)) auto;
             gap: 14px;
             align-items: center;
         }
 
-        input,
-        select {
-            display: block;
+        .edit-form input,
+        .edit-form select {
             width: 100%;
             min-width: 0;
-            height: 58px;
+            height: 60px;
             padding: 0 16px;
-            border: 1px solid #dbe3ef;
-            border-radius: 11px;
-            background: #fff;
-            color: #263b59;
+            border: 1px solid #dce4f0;
+            border-radius: 12px;
+            background: #ffffff;
+            color: #24364b;
             font-family: inherit;
-            font-size: 15px;
+            font-size: 16px;
+            outline: none;
             transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        input::placeholder {
-            color: #8793a5;
+        .edit-form input:focus,
+        .edit-form select:focus {
+            border-color: #2962f5;
+            box-shadow: 0 0 0 3px rgba(41, 98, 245, 0.08);
         }
 
-        input:focus,
-        select:focus {
-            outline: none;
-            border-color: #2864f0;
-            box-shadow: 0 0 0 3px rgba(40, 100, 240, 0.10);
-        }
-
-        .submit-button {
-            grid-column: 1 / -1;
-            justify-self: end;
-            width: 220px;
-            min-height: 56px;
-            padding: 14px 20px;
+        .update-btn {
+            height: 60px;
+            padding: 0 25px;
             border: none;
-            border-radius: 10px;
-            background: #2864f0;
-            color: #fff;
+            border-radius: 12px;
+            background: #2962f5;
+            color: #ffffff;
             font-family: inherit;
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            white-space: nowrap;
             cursor: pointer;
-            transition: background 0.2s, box-shadow 0.2s;
+            transition: background 0.2s;
         }
 
-        .submit-button:hover {
-            background: #174fd0;
-            box-shadow: 0 4px 12px rgba(40, 100, 240, 0.20);
+        .update-btn:hover {
+            background: #174bd0;
         }
 
-        .submit-button:active {
-            transform: translateY(1px);
-        }
-
-        hr {
-            border: 0;
-            border-top: 1px solid #e5eaf2;
+        .divider {
             margin: 32px 0;
+            border: none;
+            border-top: 1px solid #edf0f5;
         }
 
-        h2 {
-            margin-bottom: 18px;
-            color: #263b59;
-            font-size: 28px;
+        .info-section h2 {
+            margin: 0 0 18px;
+            color: #263c59;
+            font-size: 30px;
             font-weight: 700;
         }
 
-        .info-text {
-            color: #71839f;
-            font-size: 15px;
-            line-height: 1.8;
+        .info-section p {
+            margin: 0;
+            color: #71819b;
+            font-size: 16px;
+            line-height: 1.7;
         }
 
-        .info-text strong {
-            color: #526782;
-        }
-
-        .toast-container {
-            margin-bottom: 22px;
-        }
-
-        .toast {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 16px 18px;
-            margin-bottom: 10px;
-            border-radius: 9px;
+        .flash-message {
+            margin-bottom: 18px;
+            padding: 13px 16px;
+            border-radius: 8px;
             font-size: 14px;
-            box-shadow: 0 3px 12px rgba(30, 50, 85, 0.05);
         }
 
-        .toast.success {
-            color: #176b3a;
-            background: #effcf4;
-            border-left: 4px solid #16a34a;
+        .flash-message.success {
+            background: #dcfce7;
+            color: #166534;
+            border: 1px solid #bbf7d0;
         }
 
-        .toast.error {
-            color: #b4232d;
-            background: #fff1f2;
-            border-left: 4px solid #ef4444;
+        .flash-message.error {
+            background: #fee2e2;
+            color: #991b1b;
+            border: 1px solid #fecaca;
         }
 
-        .toast-close {
-            margin-left: auto;
-            border: none;
-            background: transparent;
-            color: inherit;
-            font-size: 22px;
-            cursor: pointer;
-        }
-
-        @media (min-width: 1500px) {
-            .form-grid {
-                grid-template-columns: repeat(4, minmax(0, 1fr)) minmax(220px, 1.1fr) 210px;
-            }
-
-            .submit-button {
-                grid-column: auto;
-                width: 100%;
-            }
-        }
-
-        @media (max-width: 1000px) {
-            body {
-                padding: 18px;
-            }
-
-            .container {
-                padding: 30px;
-            }
-
-            .form-grid {
+        @media (max-width: 1150px) {
+            .edit-form {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
 
-            .submit-button {
-                grid-column: 1 / -1;
-                justify-self: stretch;
+            .update-btn {
                 width: 100%;
-            }
-
-            h1 {
-                font-size: 34px;
             }
         }
 
-        @media (max-width: 560px) {
+        @media (max-width: 600px) {
             body {
-                padding: 10px;
+                padding: 12px;
             }
 
             .container {
-                padding: 22px 16px;
+                padding: 22px 18px;
                 border-radius: 15px;
             }
 
-            .back-button {
-                margin-bottom: 24px;
+            .back-btn {
+                margin-bottom: 22px;
             }
 
             h1 {
-                font-size: 29px;
-                margin-bottom: 24px;
+                font-size: 30px;
             }
 
-            .form-grid {
+            .edit-form {
                 grid-template-columns: 1fr;
-                gap: 13px;
             }
 
-            .submit-button {
-                grid-column: 1;
+            .edit-form input,
+            .edit-form select,
+            .update-btn {
+                height: 52px;
             }
 
-            hr {
-                margin: 27px 0;
+            .divider {
+                margin: 26px 0;
             }
 
-            h2 {
+            .info-section h2 {
                 font-size: 24px;
+            }
+
+            .info-section p {
+                font-size: 14px;
             }
         }
     </style>
 </head>
 
 <body>
-    <div class="container">
 
-        <a href="{{ url_for('students') }}" class="back-button">
-             Back to Students
-        </a>
+<div class="container">
 
-        <h1>✏️ Edit Student</h1>
+    <!-- Back button -->
+    <a href="{{ url_for('students') }}" class="back-btn">
+        Back to Students
+    </a>
 
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <div class="toast-container">
-                    {% for category, message in messages %}
-                        <div class="toast {{ category }}">
-                            <span>
-                                {% if category == 'success' %}✓{% else %}⚠{% endif %}
-                            </span>
+    <!-- Page heading -->
+    <h1>✏️ Edit Student</h1>
 
-                            <span>{{ message }}</span>
-
-                            <button
-                                type="button"
-                                class="toast-close"
-                                aria-label="Close message"
-                                onclick="this.parentElement.remove()">
-                                &times;
-                            </button>
-                        </div>
-                    {% endfor %}
+    <!-- Flash messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="flash-message {{ category }}">
+                    {{ message }}
                 </div>
-            {% endif %}
-        {% endwith %}
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
 
-        <form
-            method="POST"
-            action="{{ url_for('edit_student', id=student['id']) }}"
-            class="form-grid">
+    <!-- Edit student form -->
+    <form
+        method="POST"
+        action="{{ url_for('edit_student', id=student['id']) }}"
+        class="edit-form"
+    >
 
-            <input
-                type="text"
-                name="name"
-                placeholder="Student Name"
-                value="{{ student['name'] or '' }}"
-                required
-            >
+        <!-- Student name -->
+        <input
+            type="text"
+            name="name"
+            value="{{ student['name'] }}"
+            placeholder="Student Name"
+            aria-label="Student Name"
+            required
+        >
 
-            <input
-                type="email"
-                name="email"
-                placeholder="Email"
-                value="{{ student['email'] or '' }}"
-            >
+        <!-- Email -->
+        <input
+            type="email"
+            name="email"
+            value="{{ student['email'] or '' }}"
+            placeholder="Email Address"
+            aria-label="Email Address"
+        >
 
-            <input
-                type="text"
-                name="course"
-                placeholder="Course (e.g. BCA, MCA)"
-                value="{{ student['course'] or '' }}"
-            >
+        <!-- Course -->
+        <input
+            type="text"
+            name="course"
+            value="{{ student['course'] or '' }}"
+            placeholder="Course (BCA, MCA)"
+            aria-label="Course"
+            required
+        >
 
-            <input
-                type="text"
-                name="semester"
-                placeholder="Semester"
-                value="{{ student['semester'] or '' }}"
-            >
+        <!-- Semester -->
+        <select name="semester" aria-label="Semester" required>
+            <option value="">Select Semester</option>
 
-            <select name="course_type" required>
-                <option value="">Select UG/PG</option>
-
-                <option value="UG"
-                    {% if student['course_type'] == 'UG' %}selected{% endif %}>
-                    UG
+            {% for sem in range(1, 7) %}
+                <option
+                    value="{{ sem }}"
+                    {% if student['semester']|string == sem|string %}
+                        selected
+                    {% endif %}
+                >
+                    {{ sem }}
                 </option>
+            {% endfor %}
+        </select>
 
-                <option value="PG"
-                    {% if student['course_type'] == 'PG' %}selected{% endif %}>
-                    PG
-                </option>
-            </select>
+        <!-- Course type -->
+        <select name="course_type" aria-label="Course Type" required>
+            <option
+                value="UG"
+                {% if student['course_type'] == 'UG' %}selected{% endif %}
+            >
+                UG
+            </option>
 
-            <button type="submit" class="submit-button">
-                ✓ Update Student
-            </button>
+            <option
+                value="PG"
+                {% if student['course_type'] == 'PG' %}selected{% endif %}
+            >
+                PG
+            </option>
+        </select>
 
-        </form>
+        <!-- Update button -->
+        <button type="submit" class="update-btn">
+            ✓ Update Student
+        </button>
 
-        <hr>
+    </form>
 
+    <hr class="divider">
+
+    <!-- Information section -->
+    <div class="info-section">
         <h2>Student Information</h2>
 
-        <p class="info-text">
+        <p>
             Update the student details above and click
             <strong>Update Student</strong> to save your changes.
         </p>
-
     </div>
+
+</div>
+
 </body>
 </html>
