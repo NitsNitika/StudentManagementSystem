@@ -1535,26 +1535,37 @@ def performance():
 def reports():
     conn = get_db()
 
-    students_data = conn.execute("""
-        SELECT * FROM students ORDER BY name
-    """).fetchall()
+    try:
+        students_data = conn.execute("""
+            SELECT *
+            FROM students
+            ORDER BY name
+        """).fetchall()
 
-    marks_data = conn.execute("""
-        SELECT * FROM marks ORDER BY id DESC
-    """).fetchall()
+        marks_data = conn.execute("""
+            SELECT *
+            FROM marks
+            ORDER BY id DESC
+        """).fetchall()
 
-    attendance_data = conn.execute("""
-        SELECT * FROM attendance ORDER BY id DESC
-    """).fetchall()
+        attendance_data = conn.execute("""
+            SELECT *
+            FROM attendance
+            ORDER BY id DESC
+        """).fetchall()
 
-    conn.close()
+        return render_template(
+            "reports.html",
+            students=[dict(row) for row in students_data],
+            marks_data=[dict(row) for row in marks_data],
+            attendance_data=[
+                dict(row) for row in attendance_data
+            ]
+        )
 
-    return render_template(
-        "reports.html",
-        students=students_data,
-        marks_data=marks_data,
-        attendance_data=attendance_data
-    )
+    finally:
+        conn.close()
+
 
 
 # =====================================================
