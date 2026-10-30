@@ -2,12 +2,19 @@
 import os
 import sqlite3
 from datetime import date
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import (
+    Flask, render_template, request,
+    redirect, url_for, flash, session
+)
+from werkzeug.security import check_password_hash
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "database.db")
 
 app = Flask(__name__)
+from database_management import database_management_bp
+
+app.register_blueprint(database_management_bp)
 app.secret_key = "smart-student-management-local-key"
 
 
@@ -78,6 +85,16 @@ def initialize_database():
             student_name TEXT,
             date TEXT,
             status TEXT
+        )
+    """)
+     # ADD THE USERS TABLE HERE
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            role TEXT NOT NULL
+                CHECK(role IN ('teacher', 'student'))
         )
     """)
 
@@ -266,9 +283,61 @@ initialize_database()
 # LOGIN AND DASHBOARD
 # =====================================================
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "")
+
+        conn = get_db()
+
+        try:
+            user = conn.execute("""
+                SELECT id, username, password_hash, role
+                FROM users
+                WHERE username = ?
+            """, (username,)).fetchone()
+        finally:
+            conn.close()
+
+        if (
+            user
+            and check_password_hash(user["password_hash"], password)
+            and user["role"] == "teacher"
+        ):
+            session.clear()
+            session["user_id"] = user["id"]
+            session["username"] = user["username"]
+            session["role"] = "teacher"
+
+            return redirect(url_for("dashboard"))
+
+        flash(
+            "Invalid credentials. Only teachers can log in.",
+            "error"
+        )
+        return redirect(url_for("login"))
+
     return render_template("login.html")
+@app.before_request
+def teacher_only_access():
+    if request.endpoint in ("login", "static"):
+        return None
+
+    if (
+        session.get("role") != "teacher"
+        or not session.get("user_id")
+    ):
+        session.clear()
+        flash("Please log in using a teacher account.", "error")
+        return redirect(url_for("login"))
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 
 @app.route("/dashboard")
@@ -1530,7 +1599,6 @@ def performance():
 # =====================================================
 # REPORTS
 # =====================================================
-
 @app.route("/reports")
 def reports():
     conn = get_db()
@@ -1558,19 +1626,16 @@ def reports():
             "reports.html",
             students=[dict(row) for row in students_data],
             marks_data=[dict(row) for row in marks_data],
-            attendance_data=[
-                dict(row) for row in attendance_data
-            ]
+            attendance_data=[dict(row) for row in attendance_data]
         )
+
+    except Exception as e:
+        app.logger.exception("Error loading Reports page")
+        return f"Unable to load reports: {str(e)}", 500
 
     finally:
         conn.close()
 
-
-
-# =====================================================
-# RUN
-# =====================================================
 
 if __name__ == "__main__":
     app.run(debug=True)

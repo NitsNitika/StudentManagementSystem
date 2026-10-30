@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Database Management | Smart Student Management System</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f4f6fb;
+            padding: 20px;
+            color: #152b59;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        /* SIDEBAR */
+
+        .dashboard-container {
+            display: flex;
+            gap: 20px;
+            min-height: 100vh;
+        }
+
+        .sidebar {
+            width: 280px;
+            min-width: 280px;
+            min-height: 100vh;
+            background: #1e3a8a;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .logo-icon {
+            font-size: 42px;
+        }
+
+        .logo-text h2 {
+            color: white;
+            font-size: 32px;
+        }
+
+        .logo-text p {
+            color: #cbd5e1;
+            font-size: 13px;
+            margin-top: 5px;
+        }
+
+        .menu {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .menu a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            color: white;
+            padding: 16px 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            background: rgba(255,255,255,0.08);
+            transition: 0.3s;
+        }
+
+        .menu a:hover {
+            background: white;
+            color: #1e3a8a;
+            transform: translateX(8px);
+        }
+
+        .menu span {
+            font-size: 22px;
+        }
+
+        /* RIGHT AREA */
+
+        .right-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        /* DATABASE HEADER */
+
+        .database-header {
+            background: white;
+            border: 1px solid #edf1f8;
+            border-radius: 18px;
+            padding: 24px 26px 18px;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 16px rgba(25,48,90,0.035);
+        }
+
+        .heading-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .heading-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .database-heading-icon {
+            font-size: 38px;
+        }
+
+        .database-header h1 {
+            color: #173b96;
+            font-size: 32px;
+            line-height: 1.25;
+        }
+
+        .database-description {
+            color: #7183a4;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-top: 7px;
+        }
+
+        .breadcrumb {
+            padding-top: 8px;
+            color: #7183a4;
+            font-size: 12px;
+        }
+
+        /* SUMMARY CARDS */
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 21px;
+        }
+
+        .summary-card {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            min-height: 98px;
+            padding: 15px;
+            border: 1px solid;
+            border-radius: 14px;
+        }
+
+        .student-card {
+            background: linear-gradient(110deg, #f1f6ff, #f8faff);
+            border-color: #e0eaff;
+        }
+
+        .subject-card {
+            background: linear-gradient(110deg, #edfcf4, #f6fcf8);
+            border-color: #d9f5e6;
+        }
+
+        .marks-card {
+            background: linear-gradient(110deg, #fff5ec, #fffaf5);
+            border-color: #ffead9;
+        }
+
+        .attendance-card {
+            background: linear-gradient(110deg, #f5efff, #fbf8ff);
+            border-color: #eee0ff;
+        }
+
+        .teacher-card {
+            background: linear-gradient(110deg, #eefbf9, #f7fffe);
+            border-color: #d8f3ee;
+        }
+
+        .summary-icon {
+            width: 62px;
+            height: 62px;
+            min-width: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-size: 28px;
+        }
+
+        .student-card .summary-icon {
+            background: #dce9ff;
+        }
+
+        .subject-card .summary-icon {
+            background: #d1f5e3;
+        }
+
+        .marks-card .summary-icon {
+            background: #ffe7d2;
+        }
+
+        .attendance-card .summary-icon {
+            background: #eee0ff;
+        }
+
+        .teacher-card .summary-icon {
+            background: #d8f3ee;
+        }
+
+        .summary-number {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 7px;
+        }
+
+        .student-card .summary-number {
+            color: #1760f5;
+        }
+
+        .subject-card .summary-number {
+            color: #079653;
+        }
+
+        .marks-card .summary-number {
+            color: #ed5b16;
+        }
+
+        .attendance-card .summary-number {
+            color: #6925d4;
+        }
+
+        .teacher-card .summary-number {
+            color: #078577;
+        }
+
+        .summary-label {
+            color: #40547b;
+            font-size: 13px;
+        }
+
+        /* DATABASE TABS */
+
+        .database-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 19px;
+        }
+
+        .database-tab {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 9px;
+            min-height: 51px;
+            padding: 12px 17px;
+            border: 1px solid #e0e7f3;
+            border-radius: 11px;
+            background: white;
+            color: #19408f;
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: 0 2px 5px rgba(28,52,98,0.04);
+            transition: 0.2s;
+        }
+
+        .database-tab:hover {
+            background: #f0f5ff;
+        }
+
+        .database-tab.active {
+            background: linear-gradient(110deg, #1760f5, #286bff);
+            color: white;
+            border-color: #1760f5;
+        }
+
+        .tab-icon {
+            font-size: 16px;
+        }
+
+        /* TABLE PANEL */
+
+        .table-panel {
+            background: white;
+            border: 1px solid #edf1f8;
+            border-radius: 18px;
+            padding: 22px 26px 19px;
+            box-shadow: 0 5px 18px rgba(25,48,90,0.035);
+        }
+
+        .table-title-row {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 15px;
+        }
+
+        .table-title-icon {
+            font-size: 30px;
+        }
+
+        .table-title-row h2 {
+            color: #142d64;
+            font-size: 23px;
+        }
+
+        .table-subtitle {
+            color: #7183a4;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        /* SEARCH */
+
+        .filter-row {
+            display: flex;
+            align-items: stretch;
+            gap: 10px;
+            margin-bottom: 17px;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            min-width: 160px;
+            height: 45px;
+            border: 1px solid #dce5f3;
+            border-radius: 10px;
+            background: white;
+        }
+
+        .search-icon {
+            padding-left: 14px;
+            color: #60749a;
+            font-size: 21px;
+        }
+
+        .search-box input {
+            flex: 1;
+            width: 100%;
+            height: 43px;
+            padding: 0 12px;
+            outline: none;
+            border: none;
+            background: transparent;
+            color: #203968;
+            font-size: 13px;
+        }
+
+        .search-box:focus-within {
+            border-color: #76a2ff;
+            box-shadow: 0 0 0 3px rgba(23,96,245,0.08);
+        }
+
+        .course-filter {
+            width: 185px;
+            min-width: 145px;
+            padding: 0 12px;
+            border: 1px solid #dce5f3;
+            border-radius: 10px;
+            background: white;
+            color: #203968;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .search-button {
+            min-width: 125px;
+            padding: 0 18px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(110deg, #1760f5, #286bff);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .search-button:hover {
+            background: #104ed1;
+        }
+
+        .clear-button {
+            display: flex;
+            align-items: center;
+            padding: 0 13px;
+            border: 1px solid #dce5f3;
+            border-radius: 10px;
+            background: #f7f9fd;
+            color: #36517f;
+            font-size: 12px;
+        }
+
+        /* DATABASE TABLE */
+
+        .table-wrapper {
+            overflow-x: auto;
+            border: 1px solid #e2eaf7;
+            border-radius: 12px;
+        }
+
+        .data-table {
+            width: 100%;
+            min-width: 690px;
+            border-collapse: collapse;
+        }
+
+        .data-table thead {
+            background: linear-gradient(100deg, #1760f5, #2465ef);
+            color: white;
+        }
+
+        .data-table th {
+            padding: 15px 13px;
+            text-align: left;
+            white-space: nowrap;
+            font-size: 12px;
+        }
+
+        .data-table td {
+            padding: 13px;
+            color: #263d68;
+            border-bottom: 1px solid #eaf0f8;
+            font-size: 12px;
+            vertical-align: middle;
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: #f6f9ff;
+        }
+
+        .data-table tbody tr:nth-child(odd) {
+            background: white;
+        }
+
+        .data-table tbody tr:hover {
+            background: #edf4ff;
+        }
+
+        .data-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .course-badge {
+            display: inline-block;
+            min-width: 40px;
+            padding: 5px 10px;
+            border-radius: 20px;
+            background: #e1ebff;
+            color: #1760f5;
+            text-align: center;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .course-badge.pg {
+            background: #f0e3ff;
+            color: #762be0;
+        }
+
+        .code-badge {
+            display: inline-block;
+            padding: 5px 11px;
+            border-radius: 20px;
+            background: #edf0f5;
+            color: #40516e;
+            font-size: 11px;
+        }
+
+        .empty-row {
+            padding: 30px !important;
+            text-align: center;
+            color: #7183a4 !important;
+        }
+
+        /* FOOTER */
+
+        .table-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-top: 16px;
+        }
+
+        .record-count {
+            color: #7183a4;
+            font-size: 12px;
+        }
+
+        .footer-note {
+            margin-top: 12px;
+            color: #8290aa;
+            font-size: 11px;
+            line-height: 1.6;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 1250px) {
+            .sidebar {
+                width: 250px;
+                min-width: 250px;
+            }
+
+            .summary-cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+
+            .breadcrumb {
+                display: none;
+            }
+
+            .filter-row {
+                flex-wrap: wrap;
+            }
+
+            .search-box {
+                flex-basis: 100%;
+            }
+        }
+
+        @media (max-width: 850px) {
+            body {
+                padding: 10px;
+            }
+
+            .dashboard-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: 0;
+                min-height: auto;
+            }
+
+            .logo-section {
+                margin-bottom: 20px;
+            }
+
+            .menu {
+                display: grid;
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 10px;
+            }
+
+            .menu a {
+                padding: 13px;
+                font-size: 14px;
+            }
+
+            .right-area {
+                width: 100%;
+            }
+
+            .database-header,
+            .table-panel {
+                padding: 18px;
+            }
+
+            .database-header h1 {
+                font-size: 26px;
+            }
+        }
+
+        @media (max-width: 520px) {
+            .summary-cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 8px;
+            }
+
+            .summary-card {
+                padding: 10px;
+                gap: 8px;
+                min-height: 80px;
+            }
+
+            .summary-icon {
+                width: 38px;
+                height: 38px;
+                min-width: 38px;
+                font-size: 19px;
+            }
+
+            .summary-number {
+                font-size: 23px;
+            }
+
+            .summary-label {
+                font-size: 10px;
+            }
+
+            .database-tab {
+                padding: 10px;
+                font-size: 11px;
+            }
+
+            .heading-left {
+                gap: 9px;
+            }
+
+            .database-heading-icon {
+                font-size: 28px;
+            }
+
+            .database-header h1 {
+                font-size: 22px;
+            }
+
+            .course-filter,
+            .search-button {
+                min-height: 42px;
+            }
+
+            .table-title-row h2 {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="dashboard-container">
+
+    <!-- SIDEBAR -->
+
+    <div class="sidebar">
+
+        <div class="logo-section">
+            <div class="logo-icon">🎓</div>
+
+            <div class="logo-text">
+                <h2>SMS</h2>
+                <p>Management System</p>
+            </div>
+        </div>
+
+        <div class="menu">
+
+            <a href="/students">
+                <span>👨‍🎓</span>
+                Students
+            </a>
+
+            <a href="/subjects">
+                <span>📚</span>
+                Subjects
+            </a>
+
+            <a href="/marks">
+                <span>📝</span>
+                Marks
+            </a>
+
+            <a href="/attendance">
+                <span>📅</span>
+                Attendance
+            </a>
+
+            <a href="/performance">
+                <span>📊</span>
+                Performance
+            </a>
+
+            <a href="/reports">
+                <span>📄</span>
+                Reports
+            </a>
+
+            <a href="/database/">
+                <span>🗄️</span>
+                Database Management
+            </a>
+
+        </div>
+    </div>
+
+    <!-- RIGHT SIDE -->
+
+    <div class="right-area">
+
+        <!-- DATABASE HEADER -->
+
+        <section class="database-header">
+
+            <div class="heading-row">
+
+                <div>
+                    <div class="heading-left">
+                        <span class="database-heading-icon">🗄️</span>
+                        <h1>Database Management</h1>
+                    </div>
+
+                    <p class="database-description">
+                        View and search the records stored in your existing
+                        Smart Student Management System database.
+                    </p>
+                </div>
+
+                <div class="breadcrumb">
+                    <span>⌂</span> / Database Management
+                </div>
+
+            </div>
+
+            <!-- SUMMARY CARDS -->
+
+            <div class="summary-cards">
+
+                <div class="summary-card student-card">
+                    <div class="summary-icon">👥</div>
+                    <div>
+                        <div class="summary-number">
+                            {{ counts.students }}
+                        </div>
+                        <div class="summary-label">
+                            Student Records
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card subject-card">
+                    <div class="summary-icon">📖</div>
+                    <div>
+                        <div class="summary-number">
+                            {{ counts.subjects }}
+                        </div>
+                        <div class="summary-label">
+                            Subject Records
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card marks-card">
+                    <div class="summary-icon">📑</div>
+                    <div>
+                        <div class="summary-number">
+                            {{ counts.marks }}
+                        </div>
+                        <div class="summary-label">
+                            Marks Records
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card attendance-card">
+                    <div class="summary-icon">🗓️</div>
+                    <div>
+                        <div class="summary-number">
+                            {{ counts.attendance }}
+                        </div>
+                        <div class="summary-label">
+                            Attendance Records
+                        </div>
+                    </div>
+                </div>
+
+                <div class="summary-card teacher-card">
+                    <div class="summary-icon">👩‍🏫</div>
+                    <div>
+                        <div class="summary-number">
+                            {{ counts.teachers }}
+                        </div>
+                        <div class="summary-label">
+                            Teacher Records
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- TABLE TABS -->
+
+            <nav class="database-tabs">
+
+                <a class="database-tab {{ 'active' if active_table == 'students' else '' }}"
+                   href="{{ url_for('database_management.database_management', table='students') }}">
+                    <span class="tab-icon">👥</span>
+                    Students ({{ counts.students }})
+                </a>
+
+                <a class="database-tab {{ 'active' if active_table == 'subjects' else '' }}"
+                   href="{{ url_for('database_management.database_management', table='subjects') }}">
+                    <span class="tab-icon">📚</span>
+                    Subjects ({{ counts.subjects }})
+                </a>
+
+                <a class="database-tab {{ 'active' if active_table == 'marks' else '' }}"
+                   href="{{ url_for('database_management.database_management', table='marks') }}">
+                    <span class="tab-icon">📄</span>
+                    Marks ({{ counts.marks }})
+                </a>
+
+                <a class="database-tab {{ 'active' if active_table == 'attendance' else '' }}"
+                   href="{{ url_for('database_management.database_management', table='attendance') }}">
+                    <span class="tab-icon">🗓️</span>
+                    Attendance ({{ counts.attendance }})
+                </a>
+
+                <a class="database-tab {{ 'active' if active_table == 'teachers' else '' }}"
+                   href="{{ url_for('database_management.database_management', table='teachers') }}">
+                    <span class="tab-icon">👩‍🏫</span>
+                    Teachers ({{ counts.teachers }})
+                </a>
+
+            </nav>
+
+        </section>
+
+        <!-- TABLE PANEL -->
+
+        <section class="table-panel">
+
+            <div class="table-title-row">
+
+                <span class="table-title-icon">
+
+                    {% if active_table == 'students' %}
+                        👥
+                    {% elif active_table == 'subjects' %}
+                        📚
+                    {% elif active_table == 'marks' %}
+                        📑
+                    {% elif active_table == 'attendance' %}
+                        🗓️
+                    {% else %}
+                        👩‍🏫
+                    {% endif %}
+
+                </span>
+
+                <div>
+                    <h2>
+
+                        {% if active_table == 'students' %}
+                            Students Table
+                        {% elif active_table == 'subjects' %}
+                            Subjects Table
+                        {% elif active_table == 'marks' %}
+                            Marks Table
+                        {% elif active_table == 'attendance' %}
+                            Attendance Table
+                        {% else %}
+                            Teachers Table
+                        {% endif %}
+
+                    </h2>
+
+                    <p class="table-subtitle">
+                        View and search {{ active_table }} records stored in the database.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- SEARCH AND COURSE FILTER -->
+
+            <form class="filter-row"
+                  method="GET"
+                  action="{{ url_for('database_management.database_management') }}">
+
+                <input type="hidden"
+                       name="table"
+                       value="{{ active_table }}">
+
+                <div class="search-box">
+
+                    <span class="search-icon">⌕</span>
+
+                    <input type="search"
+                           id="databaseSearch"
+                           name="q"
+                           value="{{ search_term }}"
+                           placeholder="Search {{ active_table }} records..."
+                           aria-label="Search database records">
+
+                </div>
+
+                {% if active_table != 'teachers' %}
+
+                    <select class="course-filter"
+                            id="courseFilter"
+                            aria-label="Filter by course type">
+
+                        <option value="all">⚑ All Course Types</option>
+                        <option value="UG">UG Only</option>
+                        <option value="PG">PG Only</option>
+
+                    </select>
+
+                {% endif %}
+
+                <button type="submit" class="search-button">
+                    ⌕ Search
+                </button>
+
+                {% if search_term %}
+
+                    <a class="clear-button"
+                       href="{{ url_for('database_management.database_management', table=active_table) }}">
+                        Clear
+                    </a>
+
+                {% endif %}
+
+            </form>
+
+            <!-- DATABASE RECORDS -->
+
+            <div class="table-wrapper">
+
+                <table class="data-table">
+
+                    <thead>
+                        <tr>
+
+                            {% if active_table == 'students' %}
+
+                                <th>#</th>
+                                <th>Register No.</th>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Semester</th>
+                                <th>Course Type</th>
+
+                            {% elif active_table == 'subjects' %}
+
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Subject Name</th>
+                                <th>Subject Code</th>
+                                <th>Course Type</th>
+
+                            {% elif active_table == 'marks' %}
+
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Subject Name</th>
+                                <th>Marks</th>
+                                <th>Course Type</th>
+
+                            {% elif active_table == 'attendance' %}
+
+                                <th>#</th>
+                                <th>Student Name</th>
+                                <th>Date</th>
+                                <th>Status</th>
+
+                            {% else %}
+
+                                <th>#</th>
+                                <th>Teacher ID</th>
+                                <th>Username</th>
+                                <th>Role</th>
+
+                            {% endif %}
+
+                        </tr>
+                    </thead>
+
+                    <tbody id="databaseTableBody">
+
+                        {% for row in records %}
+
+                            <tr data-course-type="{{ (row['course_type'] or '')|upper if active_table != 'teachers' else '' }}">
+
+                                {% if active_table == 'students' %}
+
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row['student_code'] or '—' }}</td>
+                                    <td>{{ row['name'] }}</td>
+                                    <td>{{ row['email'] or '—' }}</td>
+                                    <td>{{ row['course'] or '—' }}</td>
+                                    <td>{{ row['semester'] or '—' }}</td>
+
+                                    <td>
+                                        <span class="course-badge {{ 'pg' if (row['course_type'] or '')|upper == 'PG' else '' }}">
+                                            {{ row['course_type'] or '—' }}
+                                        </span>
+                                    </td>
+
+                                {% elif active_table == 'subjects' %}
+
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row['student_name'] or '—' }}</td>
+                                    <td>{{ row['subject_name'] or '—' }}</td>
+
+                                    <td>
+                                        <span class="code-badge">
+                                            {{ row['subject_code'] or '—' }}
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <span class="course-badge {{ 'pg' if (row['course_type'] or '')|upper == 'PG' else '' }}">
+                                            {{ row['course_type'] or '—' }}
+                                        </span>
+                                    </td>
+
+                                {% elif active_table == 'marks' %}
+
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row['student_name'] or '—' }}</td>
+                                    <td>{{ row['subject_name'] or '—' }}</td>
+                                    <td>{{ row['marks'] if row['marks'] is not none else '—' }}</td>
+
+                                    <td>
+                                        <span class="course-badge {{ 'pg' if (row['course_type'] or '')|upper == 'PG' else '' }}">
+                                            {{ row['course_type'] or '—' }}
+                                        </span>
+                                    </td>
+
+                                {% elif active_table == 'attendance' %}
+
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row['student_name'] or '—' }}</td>
+                                    <td>{{ row['date'] or '—' }}</td>
+
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ row['status'] or '—' }}
+                                        </span>
+                                    </td>
+
+                                {% else %}
+
+                                    <td>{{ loop.index }}</td>
+                                    <td>{{ row['id'] }}</td>
+                                    <td>{{ row['username'] }}</td>
+
+                                    <td>
+                                        <span class="course-badge">
+                                            {{ row['role']|title }}
+                                        </span>
+                                    </td>
+
+                                {% endif %}
+
+                            </tr>
+
+                        {% else %}
+
+                            <tr>
+                                <td colspan="{{ 7 if active_table == 'students' else (5 if active_table in ['subjects', 'marks'] else 4) }}"
+                                    class="empty-row">
+                                    No matching records found.
+                                </td>
+                            </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <!-- TABLE FOOTER -->
+
+            <div class="table-footer">
+
+                <div class="record-count">
+                    Showing
+                    <strong id="visibleRecordCount">
+                        {{ records|length }}
+                    </strong>
+                    of {{ records|length }} matching record(s).
+                </div>
+
+            </div>
+
+            <p class="footer-note">
+                Read-only view of your existing database.
+                Your records are not modified by this page.
+            </p>
+
+        </section>
+
+    </div>
+
+</div>
+
+<!-- COURSE TYPE FILTER -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const courseFilter = document.getElementById("courseFilter");
+    const tableBody = document.getElementById("databaseTableBody");
+    const countElement = document.getElementById("visibleRecordCount");
+
+    if (!courseFilter || !tableBody || !countElement) {
+        return;
+    }
+
+    courseFilter.addEventListener("change", function () {
+
+        const selectedType = this.value;
+
+        const rows = Array.from(
+            tableBody.querySelectorAll("tr[data-course-type]")
+        );
+
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+
+            const rowType = row.dataset.courseType || "";
+
+            const shouldShow =
+                selectedType === "all" ||
+                rowType === selectedType;
+
+            row.style.display = shouldShow ? "" : "none";
+
+            if (shouldShow) {
+                visibleCount++;
+            }
+
+        });
+
+        countElement.textContent = visibleCount;
+
+    });
+
+});
+</script>
+
+</body>
+</html>

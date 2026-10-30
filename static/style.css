@@ -442,3 +442,743 @@ hr{
 .back-btn:hover {
     background: #1d4ed8;
 }
+
+/* ==============================
+   SMART STUDENT MANAGEMENT SYSTEM
+   LOGIN PAGE
+================================ */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --primary: #2463eb;
+    --primary-dark: #1d4ed8;
+    --navy: #101d42;
+    --muted: #68748a;
+    --border: #d9e0eb;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    color: var(--navy);
+    background: #f3f6fc;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+}
+
+/* LEFT PANEL */
+
+.welcome-section {
+    min-height: 100vh;
+    position: relative;
+    padding: 55px 6.5%;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 100% 10%,
+        #d9eaff 0%, transparent 43%),
+        linear-gradient(140deg, #ffffff 0%, #f3f7ff 100%);
+}
+
+.welcome-section::after {
+    content: "";
+    position: absolute;
+    width: 480px;
+    height: 480px;
+    border-radius: 50%;
+    background: rgba(69, 139, 255, 0.07);
+    bottom: -290px;
+    left: -150px;
+    pointer-events: none;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+    position: relative;
+    z-index: 2;
+}
+
+.brand-icon,
+.login-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #2463eb;
+    background: #e1edff;
+    border-radius: 50%;
+}
+
+.brand-icon {
+    width: 68px;
+    height: 68px;
+    padding: 12px;
+}
+
+.brand-icon svg,
+.login-logo svg {
+    width: 100%;
+    height: 100%;
+}
+
+.brand-name h2 {
+    font-size: 27px;
+    font-weight: 750;
+    color: #24438f;
+    letter-spacing: -0.6px;
+}
+
+.brand-name p {
+    font-size: 19px;
+    color: #657086;
+    margin-top: 3px;
+}
+
+.welcome-content {
+    position: relative;
+    z-index: 2;
+    margin-top: 58px;
+    max-width: 560px;
+}
+
+.welcome-content h1 {
+    font-size: clamp(36px, 3.5vw, 59px);
+    line-height: 1.13;
+    letter-spacing: -2px;
+    color: #101d42;
+    font-weight: 800;
+}
+
+.welcome-content h1 span {
+    color: #2463eb;
+}
+
+.intro {
+    color: #667187;
+    font-size: 18px;
+    line-height: 1.65;
+    max-width: 475px;
+    margin-top: 23px;
+}
+
+.feature-list {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 17px;
+}
+
+.feature-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-icon svg {
+    width: 28px;
+    height: 28px;
+}
+
+.feature-icon.blue {
+    background: #dceaff;
+    color: #2463eb;
+}
+
+.feature-icon.green {
+    background: #d4f7e9;
+    color: #10a779;
+}
+
+.feature-icon.purple {
+    background: #eee1ff;
+    color: #a344ed;
+}
+
+.feature h3 {
+    font-size: 17px;
+    margin-bottom: 6px;
+    font-weight: 750;
+}
+
+.feature p {
+    font-size: 15px;
+    color: #68748a;
+}
+
+/* CSS EDUCATION ILLUSTRATION */
+
+.education-art {
+    position: absolute;
+    z-index: 1;
+    width: 390px;
+    height: 300px;
+    right: -4px;
+    bottom: 70px;
+    pointer-events: none;
+}
+
+.books {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    width: 260px;
+    height: 145px;
+    filter: drop-shadow(0 12px 12px rgba(34, 65, 117, 0.14));
+}
+
+.book {
+    position: absolute;
+    left: 0;
+    height: 43px;
+    width: 255px;
+    border-radius: 9px 14px 14px 9px;
+    border-bottom: 5px solid rgba(0, 0, 0, 0.09);
+    transform: skewY(-3deg);
+}
+
+.book::after {
+    content: "";
+    position: absolute;
+    width: 9px;
+    right: 24px;
+    top: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.book-blue {
+    bottom: 0;
+    background: linear-gradient(90deg, #4389f5, #78b5ff);
+}
+
+.book-pink {
+    bottom: 47px;
+    left: 12px;
+    background: linear-gradient(90deg, #f17da9, #ffb0c9);
+}
+
+.book-light {
+    bottom: 94px;
+    left: 24px;
+    background: linear-gradient(90deg, #4b9cff, #a1d0ff);
+}
+
+.graduation-cap {
+    position: absolute;
+    z-index: 3;
+    bottom: 140px;
+    left: 42px;
+    width: 225px;
+    height: 95px;
+    filter: drop-shadow(0 8px 5px rgba(22, 33, 58, 0.15));
+}
+
+.cap-top {
+    position: absolute;
+    width: 100%;
+    height: 50px;
+    top: 0;
+    left: 0;
+    background: linear-gradient(145deg, #414c61, #111a2d);
+    clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+}
+
+.cap-base {
+    position: absolute;
+    top: 26px;
+    left: 43px;
+    width: 140px;
+    height: 46px;
+    border-radius: 0 0 35px 35px;
+    background: linear-gradient(90deg, #101827, #394357);
+    clip-path: polygon(0 0, 100% 0, 88% 70%, 50% 100%, 12% 70%);
+}
+
+.cap-tassel {
+    position: absolute;
+    top: 22px;
+    right: 20px;
+    height: 75px;
+    width: 4px;
+    background: #ffb62e;
+    transform: rotate(-5deg);
+    border-radius: 5px;
+}
+
+.cap-tassel::after {
+    content: "";
+    position: absolute;
+    bottom: -3px;
+    left: -5px;
+    width: 13px;
+    height: 20px;
+    background: #ffb62e;
+    clip-path: polygon(0 0, 100% 0, 75% 100%, 50% 75%, 25% 100%);
+}
+
+.plant {
+    position: absolute;
+    right: 30px;
+    bottom: 140px;
+    width: 100px;
+    height: 220px;
+}
+
+.plant-stem {
+    position: absolute;
+    height: 145px;
+    width: 5px;
+    left: 46px;
+    bottom: 0;
+    background: #518d70;
+    border-radius: 10px;
+}
+
+.plant span {
+    position: absolute;
+    z-index: 2;
+    width: 39px;
+    height: 85px;
+    background: linear-gradient(145deg, #74b995, #267f5b);
+    border-radius: 90% 5% 90% 5%;
+}
+
+.plant span:nth-child(1) {
+    bottom: 98px;
+    left: 10px;
+    transform: rotate(-45deg);
+}
+
+.plant span:nth-child(2) {
+    bottom: 140px;
+    left: 45px;
+    transform: rotate(20deg) scale(0.9);
+}
+
+.plant span:nth-child(3) {
+    bottom: 58px;
+    left: 48px;
+    transform: rotate(45deg);
+}
+
+.plant-pot {
+    position: absolute;
+    bottom: 0;
+    left: 21px;
+    width: 58px;
+    height: 60px;
+    background: linear-gradient(90deg, #d9e4f4, #ffffff, #c6d5e9);
+    border-radius: 5px 5px 20px 20px;
+}
+
+.pencil-cup {
+    position: absolute;
+    z-index: 4;
+    bottom: 0;
+    right: 45px;
+    width: 65px;
+    height: 88px;
+    border-radius: 8px 8px 17px 17px;
+    background: linear-gradient(90deg, #d9e4f4, #ffffff, #dce6f5);
+    box-shadow: 0 10px 20px rgba(20, 49, 90, 0.1);
+}
+
+.pencil-cup i {
+    position: absolute;
+    bottom: 58px;
+    left: 13px;
+    width: 7px;
+    height: 72px;
+    border-radius: 4px;
+    background: #f5b942;
+    transform: rotate(-15deg);
+    transform-origin: bottom;
+}
+
+.pencil-cup i:nth-child(2) {
+    left: 27px;
+    height: 85px;
+    background: #4285f4;
+    transform: rotate(7deg);
+}
+
+.pencil-cup i:nth-child(3) {
+    left: 41px;
+    height: 74px;
+    background: #f16d8f;
+    transform: rotate(20deg);
+}
+
+.pencil-cup i:nth-child(4) {
+    left: 51px;
+    height: 62px;
+    background: #f5b942;
+    transform: rotate(28deg);
+}
+
+.tagline {
+    position: absolute;
+    z-index: 2;
+    left: 7%;
+    bottom: 38px;
+    color: #5f6b82;
+    transform: rotate(-4deg);
+}
+
+.tagline-arrow {
+    font-size: 31px;
+    display: block;
+    margin-bottom: 5px;
+}
+
+.tagline p {
+    font-family: Georgia, serif;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.6;
+}
+
+.tagline-line {
+    display: block;
+    height: 4px;
+    width: 65px;
+    margin-top: 10px;
+    background: #2463eb;
+    border-radius: 4px;
+}
+
+/* RIGHT PANEL */
+
+.login-section {
+    min-height: 100vh;
+    padding: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(ellipse at 100% 5%,
+        #a6d4ff 0%, transparent 55%),
+        linear-gradient(135deg, #e5efff, #c9e0ff 70%, #a9d2ff);
+}
+
+.login-section::before {
+    content: "";
+    position: absolute;
+    width: 660px;
+    height: 660px;
+    top: -280px;
+    left: -160px;
+    border-radius: 50%;
+    border: 85px solid rgba(255, 255, 255, 0.24);
+}
+
+.login-card {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 550px;
+    padding: 48px 45px 35px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 24px;
+    box-shadow: 0 25px 65px rgba(41, 76, 135, 0.16);
+    text-align: center;
+}
+
+.login-logo {
+    width: 96px;
+    height: 96px;
+    padding: 22px;
+    margin: 0 auto 20px;
+}
+
+.login-card h2 {
+    color: #101d42;
+    font-size: 32px;
+    font-weight: 800;
+    letter-spacing: -0.8px;
+}
+
+.login-subtitle {
+    color: #6c778b;
+    font-size: 16px;
+    margin-top: 12px;
+    margin-bottom: 38px;
+}
+
+.login-card form {
+    display: flex;
+    flex-direction: column;
+    gap: 23px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+    height: 61px;
+    padding: 0 18px;
+    border: 1.5px solid #d5dce7;
+    border-radius: 13px;
+    background: #ffffff;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.input-group:focus-within {
+    border-color: #4380f5;
+    box-shadow: 0 0 0 4px rgba(36, 99, 235, 0.09);
+}
+
+.input-group > svg {
+    width: 23px;
+    height: 23px;
+    flex-shrink: 0;
+    color: #647086;
+}
+
+.input-group input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #172443;
+    font-family: inherit;
+    font-size: 17px;
+}
+
+.input-group input::placeholder {
+    color: #8a93a3;
+}
+
+.toggle-password {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: #647086;
+    padding: 3px;
+}
+
+.toggle-password svg {
+    width: 23px;
+    height: 23px;
+}
+
+.login-button {
+    height: 65px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(110deg, #2463eb, #2160ed);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 21px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 13px;
+    box-shadow: 0 9px 20px rgba(36, 99, 235, 0.17);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.login-button:hover {
+    background: linear-gradient(110deg, #1d4ed8, #174ac7);
+    box-shadow: 0 12px 25px rgba(36, 99, 235, 0.25);
+    transform: translateY(-2px);
+}
+
+.login-button:active {
+    transform: translateY(0);
+}
+
+.login-arrow {
+    font-size: 28px;
+    line-height: 1;
+    font-weight: 400;
+}
+
+.secure-note {
+    color: #8a94a7;
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 25px;
+}
+
+.flash-message {
+    background: #fff0f0;
+    color: #b42318;
+    border: 1px solid #ffd1d1;
+    border-radius: 9px;
+    padding: 12px;
+    margin: -20px 0 20px;
+    font-size: 14px;
+    text-align: left;
+}
+
+/* RESPONSIVE DESIGN */
+
+@media (max-width: 1100px) {
+    .welcome-section {
+        padding: 40px 5%;
+    }
+
+    .brand-name h2 {
+        font-size: 23px;
+    }
+
+    .brand-name p {
+        font-size: 16px;
+    }
+
+    .welcome-content {
+        margin-top: 45px;
+    }
+
+    .education-art {
+        transform: scale(0.8);
+        transform-origin: bottom right;
+        right: -25px;
+        bottom: 65px;
+    }
+
+    .login-section {
+        padding: 30px;
+    }
+
+    .login-card {
+        padding: 40px 30px 30px;
+    }
+}
+
+@media (max-width: 760px) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .welcome-section {
+        min-height: auto;
+        padding: 28px 24px 40px;
+    }
+
+    .brand-icon {
+        width: 55px;
+        height: 55px;
+    }
+
+    .brand-name h2 {
+        font-size: 21px;
+    }
+
+    .brand-name p {
+        font-size: 15px;
+    }
+
+    .welcome-content {
+        margin-top: 38px;
+    }
+
+    .welcome-content h1 {
+        font-size: 42px;
+        letter-spacing: -1.5px;
+    }
+
+    .intro {
+        font-size: 16px;
+    }
+
+    .feature-list {
+        gap: 16px;
+    }
+
+    .feature-icon {
+        width: 51px;
+        height: 51px;
+    }
+
+    .feature h3 {
+        font-size: 15px;
+    }
+
+    .feature p {
+        font-size: 14px;
+    }
+
+    .education-art,
+    .tagline {
+        display: none;
+    }
+
+    .login-section {
+        min-height: auto;
+        padding: 35px 20px 45px;
+    }
+
+    .login-card {
+        max-width: 480px;
+        padding: 35px 24px 27px;
+        border-radius: 20px;
+    }
+
+    .login-logo {
+        width: 78px;
+        height: 78px;
+        padding: 18px;
+    }
+
+    .login-card h2 {
+        font-size: 28px;
+    }
+
+    .login-subtitle {
+        font-size: 14px;
+        margin-bottom: 28px;
+    }
+
+    .input-group {
+        height: 57px;
+    }
+
+    .login-button {
+        height: 59px;
+        font-size: 19px;
+    }
+}
+
+@media (max-width: 380px) {
+    .welcome-content h1 {
+        font-size: 35px;
+    }
+
+    .login-card {
+        padding: 30px 18px 25px;
+    }
+}
